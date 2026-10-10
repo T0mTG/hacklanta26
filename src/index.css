@@ -1,19 +1,98 @@
 @import "tailwindcss";
+@import "@fontsource/fredoka/500.css";
+@import "@fontsource/fredoka/600.css";
+@import "@fontsource/fredoka/700.css";
+@import "@fontsource/nunito/400.css";
+@import "@fontsource/nunito/600.css";
+@import "@fontsource/nunito/700.css";
+@import "@fontsource/nunito/800.css";
 @import "@fontsource/caveat/600.css";
-@import "@fontsource/special-elite";
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/600.css";
+
 @theme {
-  --color-cream: #F4E9D8; --color-peach: #F7B89A; --color-lav: #8E7CC3;
-  --color-teal: #1F3A4D; --color-stamp: #C7392F; --color-gold: #F2B544;
-  --font-hand: 'Caveat', cursive; --font-stamp: 'Special Elite', monospace; --font-ui: 'Inter', sans-serif;
+  --color-ink: #22333b; --color-cream: #fbf5e6; --color-paper: #f1e9d8;
+  --color-sun: #f2c14e; --color-coral: #ee6c4d; --color-pink: #f6a6b8;
+  --color-lilac: #c9b6f2; --color-skyblue: #9ad4f5; --color-mint: #a8e6c3; --color-teal: #2a8f98;
+  --font-display: 'Fredoka', 'Nunito', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+  --font-hand: 'Caveat', cursive;
 }
-html,body,#root{height:100%;margin:0;background:#14232e;color:#F4E9D8;font-family:'Inter',sans-serif;overflow:hidden}
-.grain{position:fixed;inset:0;pointer-events:none;opacity:.12;mix-blend-mode:overlay;
- background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
-@keyframes slam{0%{transform:scale(4) rotate(-20deg);opacity:0}60%{transform:scale(.9) rotate(-12deg);opacity:1}100%{transform:scale(1) rotate(-12deg);opacity:1}}
-@keyframes shake{0%,100%{transform:translate(0)}20%{transform:translate(-8px,4px)}40%{transform:translate(7px,-5px)}60%{transform:translate(-5px,-3px)}80%{transform:translate(4px,5px)}}
-@keyframes drift{from{transform:translateY(0) rotate(0)}to{transform:translateY(-30px) rotate(12deg)}}
-@keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
-.btn{font-family:'Special Elite',monospace;background:#F2B544;color:#1F3A4D;padding:.7rem 1.6rem;border-radius:4px;border:2px solid #1F3A4D;box-shadow:4px 4px 0 #1F3A4D;cursor:pointer;font-size:1.1rem}
-.btn:hover{transform:translate(-1px,-1px)}
+
+:root {
+  --ink: #22333b; --cream: #fbf5e6; --paper: #f1e9d8; --sun: #f2c14e; --coral: #ee6c4d;
+  --pink: #f6a6b8; --lilac: #c9b6f2; --skyblue: #9ad4f5; --mint: #a8e6c3; --teal: #2a8f98;
+  --sky-a: #5bb8b5; --sky-b: #5bb8b5; /* the camera rig rewrites these as you get close to the ground */
+}
+
+html, body, #root { height: 100%; margin: 0; }
+body {
+  background: var(--sky-b); color: var(--ink); font-family: var(--font-body); font-weight: 600;
+  overflow: hidden; overscroll-behavior: none; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; color: inherit; }
+input, textarea { font: inherit; color: inherit; user-select: text; }
+::selection { background: var(--sun); }
+
+/* ---------- backdrop layers ---------- */
+.sky { position: fixed; inset: 0; background: linear-gradient(180deg, var(--sky-a) 0%, var(--sky-b) 100%); overflow: hidden; }
+.stage { position: fixed; inset: 0; touch-action: none; }
+.stage canvas { display: block; }
+.ui-layer { position: fixed; inset: 0; z-index: 20; pointer-events: none; }
+.hit { pointer-events: auto; }
+.vignette { position: fixed; inset: 0; z-index: 80; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, transparent 60%, rgba(18, 70, 80, .22) 100%); }
+.grain {
+  position: fixed; inset: 0; z-index: 90; pointer-events: none; opacity: .24; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+.sky-sun { position: absolute; right: 6vw; top: 5vh; width: clamp(64px, 11vw, 124px); filter: drop-shadow(3px 3px 0 var(--ink)); transition: opacity .8s ease, transform .8s ease; }
+.sky-sun .rays { transform-origin: 60px 60px; animation: spin 40s linear infinite; }
+.spark { position: absolute; border-radius: 50%; background: #fff; opacity: .5; animation: twinkle 3.6s ease-in-out infinite; }
+
+/* ---------- sticker kit: thick ink outline, hard offset shadow, chunky corners ---------- */
+.sticker { background: var(--cream); border: 3px solid var(--ink); border-radius: 18px; box-shadow: 4px 4px 0 var(--ink); }
+.sticker-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 48px; padding: .5rem 1.3rem;
+  font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; line-height: 1.1; cursor: pointer; touch-action: manipulation;
+  background: var(--cream); border: 3px solid var(--ink); border-radius: 16px; box-shadow: 4px 4px 0 var(--ink);
+  transition: transform .08s ease, box-shadow .08s ease, background .15s ease;
+}
+.sticker-btn:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--ink); }
+.sticker-btn:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+.sticker-btn:focus-visible { outline: 3px dashed var(--ink); outline-offset: 3px; }
+.sticker-btn[disabled] { opacity: .55; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 var(--ink); }
+.sticker-btn.big { min-height: 64px; padding: .7rem 2rem; font-size: 1.5rem; border-radius: 20px; box-shadow: 5px 5px 0 var(--ink); }
+.tone-yellow { background: var(--sun); }
+.tone-coral { background: var(--coral); color: #fff; }
+.tone-mint { background: var(--mint); }
+.tone-sky { background: var(--skyblue); }
+.tone-pink { background: var(--pink); }
+.icon-btn { width: 52px; height: 52px; min-height: 0; padding: 0; border-radius: 14px; }
+.icon-btn.round { border-radius: 999px; width: 46px; height: 46px; }
+.pill {
+  display: inline-flex; align-items: center; gap: .45rem; padding: .28rem .8rem; background: var(--cream);
+  border: 2.5px solid var(--ink); border-radius: 999px; box-shadow: 0 3px 0 var(--ink);
+  font-family: var(--font-display); font-weight: 600; font-size: .95rem; white-space: nowrap;
+}
+.keycap {
+  display: inline-grid; place-items: center; min-width: 1.5rem; height: 1.5rem; padding: 0 .35rem; background: var(--ink); color: var(--cream);
+  border-radius: 7px; font-family: var(--font-display); font-weight: 700; font-size: .8rem;
+}
+.eyebrow { font-family: var(--font-display); font-weight: 600; font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; color: var(--teal); }
+.logo {
+  font-family: var(--font-display); font-weight: 700; line-height: .95; letter-spacing: .01em; font-size: clamp(3.2rem, 12vw, 8rem);
+  -webkit-text-stroke: .1em var(--ink); paint-order: stroke fill; text-shadow: 0 .06em 0 var(--ink);
+}
+.logo span { display: inline-block; animation: bob 2.8s ease-in-out infinite; animation-delay: calc(var(--i) * 130ms); }
+
+/* ---------- motion ---------- */
+@keyframes bob { 0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); } 50% { transform: translateY(-.12em) rotate(calc(var(--r, 0deg) * -1)); } }
+@keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.06); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes wobble { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes twinkle { 0%, 100% { opacity: .15; transform: scale(.7); } 50% { opacity: .7; transform: scale(1.2); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes slide-up { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes bounce-soft { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(4px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .logo span, .sky-sun .rays, .spark { animation: none; }
+}

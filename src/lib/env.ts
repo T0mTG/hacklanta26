@@ -1,0 +1,6 @@
+// URL switches: ?lite (half the content, no shadows), ?fresh (forget the saved planet), ?screen=world (skip the intro)
+const q = new URLSearchParams(location.search)
+export const LITE = q.has('lite')
+export const FRESH = q.has('fresh')
+export const START_SCREEN = q.get('screen')
+export const DEBUG = q.has('debug')

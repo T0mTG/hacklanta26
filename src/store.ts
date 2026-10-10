@@ -1,27 +1,29 @@
 import { create } from 'zustand'
-import type { Artwork } from './data/types'
-export type Screen = 'landing' | 'intro' | 'reject' | 'upload' | 'processing' | 'world'
-interface S {
-  screen: Screen; go: (s: Screen) => void
-  artworks: Artwork[]; addArtwork: (a: Artwork) => void
-  pending: Artwork | null; setPending: (a: Artwork | null) => void
-  interactions: number; bump: () => void
-  finale: boolean; setFinale: (b: boolean) => void
-  focusId: string | null; focusN: number; setFocus: (id: string | null) => void
-  toast: string | null; setToast: (t: string | null) => void
-  reset: () => void
-}
-const initial = (new URLSearchParams(location.search).get('screen') as Screen) || 'landing'
-export const useStore = create<S>((set) => ({
-  screen: initial, go: (screen) => set({ screen }),
-  artworks: [], addArtwork: (a) => set((s) => ({ artworks: [...s.artworks, a] })),
-  pending: null, setPending: (pending) => set({ pending }),
-  interactions: 0, bump: () => set((s) => ({ interactions: s.interactions + 1 })),
-  finale: false, setFinale: (finale) => set({ finale }),
-  focusId: null, focusN: 0, setFocus: (focusId) => set((s) => ({ focusId, focusN: s.focusN + 1 })),
-  toast: null, setToast: (toast) => set({ toast }),
-  reset: () => set({ screen: 'landing', artworks: [], pending: null, interactions: 0, finale: false, focusId: null }),
-}))
+import { START_SCREEN } from './lib/env'
 
-// World-space home positions of every entity, filled by <Entity> so the camera can find them.
-export const entityPos: Record<string, [number, number]> = {}
+// `screen` is the big backdrop; `overlay` is a panel drawn over whichever screen is active,
+// so the upload panel works the same on the landing page and inside the live world.
+export type Screen = 'landing' | 'world'
+export type Overlay = null | 'upload' | 'processing'
+export type CamMode = 'title' | 'globe' | 'walk'
+
+interface S {
+  screen: Screen; setScreen: (s: Screen) => void
+  overlay: Overlay; setOverlay: (o: Overlay) => void
+  cam: CamMode; setCam: (m: CamMode) => void
+  toast: string | null; say: (msg: string) => void
+}
+
+let toastTimer = 0
+
+export const useStore = create<S>((set) => ({
+  screen: START_SCREEN === 'world' ? 'world' : 'landing', setScreen: (screen) => set({ screen }),
+  overlay: null, setOverlay: (overlay) => set({ overlay }),
+  cam: START_SCREEN === 'world' ? 'globe' : 'title', setCam: (cam) => set({ cam }),
+  toast: null,
+  say: (toast) => {
+    set({ toast })
+    clearTimeout(toastTimer)
+    toastTimer = window.setTimeout(() => set({ toast: null }), 3400)
+  },
+}))

@@ -1,21 +1,32 @@
 import { useStore } from '../store'
-const scraps = Array.from({ length: 14 }, (_, i) => ({
-  l: (i * 37) % 100, t: (i * 53) % 100, w: 40 + (i * 17) % 60, r: (i * 29) % 360,
-  c: ['#F4E9D8', '#F7B89A', '#8E7CC3', '#F2B544'][i % 4], d: 4 + (i % 5),
-}))
+import { Btn } from '../ui/kit'
+
+const WORDS = [
+  { text: 'Doodle', colors: ['#ee6c4d', '#f2c14e', '#a8e6c3', '#9ad4f5', '#c9b6f2', '#f6a6b8'] },
+  { text: 'Planet', colors: ['#fbf5e6'] },
+]
+
 export default function Landing() {
-  const go = useStore((s) => s.go)
+  const setOverlay = useStore((s) => s.setOverlay)
+  let n = 0
   return (
-    <div className="h-full flex flex-col items-center justify-center text-center relative overflow-hidden bg-teal">
-      {scraps.map((s, i) => (
-        <div key={i} className="absolute opacity-30" style={{
-          left: `${s.l}%`, top: `${s.t}%`, width: s.w, height: s.w * 0.7, background: s.c, transform: `rotate(${s.r}deg)`,
-          clipPath: 'polygon(0 10%,90% 0,100% 80%,60% 100%,5% 90%)', animation: `drift ${s.d}s ease-in-out infinite alternate`,
-        }} />
-      ))}
-      <h1 className="font-hand text-7xl md:text-9xl text-cream relative leading-none">The Afterlife<br />of Darlings</h1>
-      <p className="font-stamp text-peach mt-6 relative">a graveyard for rejected work, except the ghosts are happy</p>
-      <button className="btn mt-10 relative" onClick={() => go('intro')}>Enter</button>
+    <div className="absolute inset-0 flex flex-col items-center justify-between px-4 pt-[6vh] pb-[5vh] text-center">
+      <div className="flex flex-col items-center">
+        <h1 className="logo" aria-label="Doodle Planet">
+          {WORDS.map((w) => (
+            <span key={w.text} className="block" style={{ animation: 'none' }}>
+              {[...w.text].map((ch, i) => (
+                <span key={i} style={{ color: w.colors[i % w.colors.length], ['--i' as string]: n++, ['--r' as string]: `${(n % 2 ? 1 : -1) * 2}deg` }}>{ch}</span>
+              ))}
+            </span>
+          ))}
+        </h1>
+        <p className="pill hit mt-5 !text-base sm:!text-lg">Draw it. Upload it. Watch it come alive!</p>
+      </div>
+      <div className="flex flex-col items-center gap-3">
+        <Btn big tone="yellow" icon="pencil" onClick={() => setOverlay('upload')}>Let's go!</Btn>
+        <p className="pill !text-sm !border-2 !shadow-none">Your drawings stay on this device</p>
+      </div>
     </div>
   )
 }

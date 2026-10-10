@@ -1,46 +1,39 @@
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import { useStore } from '../store'
-import { ROLES } from '../lib/artwork'
-import type { Role } from '../data/types'
 
-const copy = ['Dusting off…', 'Assigning a personality…', 'Finding a home…']
+const LINES = ['Unpacking your crayons...', 'Building a wooden easel...', 'Finding the perfect spot...', 'Calling the butterflies...']
+const DURATION = 2600 // fixed so the demo always takes the same time
+
 export default function Processing() {
-  const { pending, setPending, addArtwork, go, setFocus } = useStore()
-  const [i, setI] = useState(0)
-  const [bump, setBump] = useState(0)
-  const [leaving, setLeaving] = useState(false)
-
-  useEffect(() => { const t = setInterval(() => setI((x) => (x + 1) % copy.length), 850); return () => clearInterval(t) }, [])
+  const [k, setK] = useState(0)
   useEffect(() => {
-    const t = setTimeout(() => setLeaving(true), 2800 + bump * 1200)
-    return () => clearTimeout(t)
-  }, [bump])
-  useEffect(() => {
-    if (!leaving || !pending) return
-    const t = setTimeout(() => { addArtwork(pending); setFocus(pending.id); setPending(null); go('world') }, 700)
-    return () => clearTimeout(t)
-  }, [leaving, pending, addArtwork, setFocus, setPending, go])
-
-  if (!pending) return null
-  const choose = (role: Role) => { setPending({ ...pending, role }); setBump((b) => b + 1) }
+    const t0 = performance.now()
+    const id = window.setInterval(() => {
+      const p = Math.min(1, (performance.now() - t0) / DURATION)
+      setK(p)
+      if (p >= 1) {
+        window.clearInterval(id)
+        const s = useStore.getState()
+        s.setScreen('world'); s.setCam('globe'); s.setOverlay(null)
+      }
+    }, 50)
+    return () => window.clearInterval(id)
+  }, [])
   return (
-    <div className="h-full flex flex-col items-center justify-center bg-teal gap-6 overflow-hidden">
-      <div className="bg-cream p-3 rounded shadow-2xl transition-all duration-700 ease-in"
-        style={{ transform: leaving ? 'scale(.05) rotate(540deg)' : 'rotate(-2deg)', opacity: leaving ? 0 : 1, filter: leaving ? 'blur(6px)' : 'none' }}>
-        <img src={pending.url} alt={pending.name} className="max-h-64 max-w-md object-contain" />
-        <p className="font-hand text-2xl text-teal text-center mt-1">{pending.name}</p>
-      </div>
-      <p className="font-stamp text-2xl text-peach">{copy[i]}</p>
-      <div className="flex flex-col items-center gap-2" style={{ opacity: leaving ? 0 : 1 }}>
-        <p className="font-ui text-sm opacity-70">Make it a…</p>
-        <div className="flex gap-2 flex-wrap justify-center">
-          {ROLES.map((r) => (
-            <button key={r.role} onClick={() => choose(r.role)}
-              className="font-stamp px-3 py-1 rounded-full border-2 border-lav transition-colors"
-              style={{ background: pending.role === r.role ? '#F2B544' : 'transparent', color: pending.role === r.role ? '#1F3A4D' : '#F4E9D8' }}>{r.label}</button>
-          ))}
+    <motion.div className="absolute inset-0 grid place-items-center p-4 hit" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <motion.div
+        className="sticker w-full max-w-md p-7 text-center"
+        initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+      >
+        <div className="text-6xl" style={{ animation: 'wobble 1s ease-in-out infinite' }} aria-hidden>🎨</div>
+        <h2 className="font-display text-3xl font-bold mt-2">Building your easel...</h2>
+        <p className="mt-1 h-7 text-lg">{LINES[Math.min(LINES.length - 1, Math.floor(k * LINES.length))]}</p>
+        <div className="mt-4 h-6 rounded-full border-[3px] border-ink bg-paper overflow-hidden">
+          <div className="h-full bg-sun border-r-[3px] border-ink" style={{ width: `${Math.max(4, k * 100)}%` }} />
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

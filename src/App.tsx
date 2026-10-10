@@ -1,20 +1,35 @@
+import { AnimatePresence } from 'framer-motion'
 import { useStore } from './store'
+import Sky from './ui/Sky'
+import { Btn, Toast } from './ui/kit'
+import Scene from './world/Scene'
 import Landing from './screens/Landing'
-import Intro from './screens/Intro'
-import Reject from './screens/Reject'
 import Upload from './screens/Upload'
 import Processing from './screens/Processing'
-import World from './world/World'
+
 export default function App() {
   const screen = useStore((s) => s.screen)
+  const overlay = useStore((s) => s.overlay)
+  const setScreen = useStore((s) => s.setScreen)
+  const setCam = useStore((s) => s.setCam)
   return (
     <>
-      {screen === 'landing' && <Landing />}
-      {screen === 'intro' && <Intro />}
-      {screen === 'reject' && <Reject />}
-      {screen === 'upload' && <Upload />}
-      {screen === 'processing' && <Processing />}
-      {screen === 'world' && <World />}
+      <Sky />
+      <Scene />
+      <div className="ui-layer">
+        {screen === 'landing' && overlay === null && <Landing />}
+        <AnimatePresence mode="wait">
+          {overlay === 'upload' && <Upload key="upload" />}
+          {overlay === 'processing' && <Processing key="processing" />}
+        </AnimatePresence>
+        {screen === 'world' && overlay === null && (
+          <div className="absolute left-4 top-4">
+            <Btn icon="back" onClick={() => { setScreen('landing'); setCam('title') }}>Home</Btn>
+          </div>
+        )}
+        <Toast />
+      </div>
+      <div className="vignette" />
       <div className="grain" />
     </>
   )

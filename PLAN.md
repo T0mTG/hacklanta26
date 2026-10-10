@@ -1,224 +1,200 @@
-# The Afterlife of Darlings: Hackathon Plan
+# Doodle Planet: Round 2 Plan
 
-Track: Adobe Creative Track
-One-liner: *A graveyard for rejected creative work, except the ghosts are happy.*
+Track: unchanged from round 1 (Adobe Creative Track)
+One-liner: *Every kid's drawing gets its own easel on a tiny low-poly planet, and the kid can walk around it.*
 
-**Decision rule:** Demo impact > sophistication. Reliability > production architecture. Polish > features. Convincing illusion > complex implementation.
+Round 2 is a restart, not a continuation. Round 1 (the paper-craft graveyard, "The Afterlife of Darlings") stays on branch `long`. Round 2 lives on `round-2-globe`, and builds **Phases 0 to 4** below.
+
+**Decision rule:** Demo impact > sophistication. Reliability > production architecture. Polish > features. Convincing illusion > complex implementation. **Kid-first:** big targets, almost no reading, nothing scary, nothing leaves the device.
 
 ---
 
-## 1. Tech Stack
+## 0. What changed from round 1
+
+| Round 1 | Round 2 |
+|---|---|
+| Flat diorama island, dusk, graveyard jokes | Round "tiny planet" you can spin, zoom out of, and walk on |
+| Adult designers, rejected work | Kids, their drawings, praise and sticky notes |
+| Artwork becomes a role (creature, house, doll...) | Artwork always becomes an **easel**; the picture stays recognisable |
+| Orbit camera only, click to react | Kid avatar with a third-person camera that follows around the globe, plus a planet view |
+| Entities fixed in slots | Easels can be **dragged** anywhere on the globe |
+| Click shows a speech bubble | Walk up, press E, see the **full picture** and leave **notes** |
+| Paper-craft, dark and moody | Low-poly cozy: pastel, teal sky, outlined trees, grain, sticker UI |
+
+## 1. Reference analysis (`dist/references/globe_1.mp4`)
+
+A tiny-planet website for Sado island. Things worth copying:
+
+- **Planet view:** small globe floating in a flat teal void, drifting cream clouds with dark outlines, label pills with numbered badges over points of interest.
+- **Walk view:** third-person camera behind a blocky chibi character, pitched down ~30°, the horizon visibly curving. A floating pill "View photo [E]" appears over the thing you can open. A huge white title appears bottom-left when you enter an area.
+- **Detail panel:** large cream rounded panel, polaroid-framed photo with round prev/next buttons on the left; on the right a small teal caps label, bold title, description, little spec chips, a thumbnail row and a square close button.
+- **Look:** flat-shaded facets, **thick dark outlines on trees and rocks**, soft blotchy grass, teal water with white foam patches, screen-door **dither** where a tree stands between camera and character, faint grain over everything.
+- **UI chrome:** cream sticker panels, 3px dark outline, **hard offset drop shadow**, a vertical stack of square icon buttons top-right (the first one yellow), a rounded badge top-left.
+
+## 2. Tech Stack
 
 | Tech | Why | What it does | Required? | Simpler alternative |
 |---|---|---|---|---|
-| **Vite + React + TypeScript** | Instant dev server, zero config | App shell, screens, state | Yes | Plain Vite + vanilla JS (but R3F wants React) |
-| **three + @react-three/fiber** | Declarative 3D | Scene, meshes, animation loop (`useFrame`) | Yes | Raw three.js (more boilerplate) |
-| **@react-three/drei** | Ready-made helpers | `Billboard`, `Text`, `Float`, `OrbitControls`/`CameraControls`, `Html`, `Sky`, `Sparkles`, `useTexture` | Yes | Hand-roll each helper |
-| **Tailwind CSS** | Fast UI polish | Landing, HUD, modals, stamps | Recommended | Plain CSS modules |
-| **Zustand** | Tiny global store | Artworks list, selected entity, scene phase | Recommended | React `useState` + context |
-| **Framer Motion** | Smooth screen transitions | Landing → upload → world fades | Optional (🟡) | CSS transitions |
-| **Browser File API + `<canvas>`** | No backend | Read image, downscale to 512px, auto-crop, extract dominant color, cutout edge | Yes | Skip processing; use raw image as texture |
-| **howler.js** (or `<audio>`) | Sound | Ambient loop, stamp thunk, boing | Optional (🟡) | `<audio>` tag |
-| **@react-three/postprocessing** | Dreamy look | Bloom, vignette, noise | Optional (🟡) | Fog + baked gradient sky |
-| **Physics (rapier / cannon)** | none | none | **No** (⚫) | Scripted sine/lerp motion |
-| **Backend / DB / Auth** | none | none | **No** (⚫) | `localStorage` only if we want persistence |
+| **Vite + React + TypeScript** | Instant dev server | App shell, screens, state | Yes | none |
+| **three + @react-three/fiber** | Declarative 3D | Planet, props, characters, `useFrame` loops | Yes | Raw three.js |
+| **@react-three/drei** | Helpers | Small utilities only (the scene is mostly hand-built geometry) | Yes | Hand-roll |
+| **Tailwind CSS v4 + hand-written sticker CSS** | Fast, consistent UI | Layout utilities, outlined/hard-shadow components | Yes | Plain CSS |
+| **Zustand (+ persist)** | Tiny global store | Screens, artworks, notes, camera mode, drag state, saved world | Yes | `useState` + context |
+| **Framer Motion** | Smooth panel transitions | Upload panel, modal, toasts | Recommended | CSS transitions |
+| **Canvas 2D / File API** | No backend | Decode, downscale, palette, EXIF-safe orientation | Yes | Use the raw image |
+| **Procedural geometry (`Kit`)** | No model files, tiny bundle | Merged flat-shaded parts with vertex colors and an inflated-hull outline | Yes | glTF assets |
+| **localStorage** | Planet remembers you | Uploads, easel positions, notes | Recommended | In-memory only |
+| **Audio** | none this round | none | **No** | none |
+| **Physics / backend / accounts** | none | none | **No** | scripted motion |
 
-Hosting: `npm run build` + Vercel/Netlify static, **or** run locally from `npm run preview` on the demo laptop (preferred: no network risk).
+Hosting: `npm run build` then `npm run preview`, fully offline. Fonts are bundled through fontsource. `vite build` keeps `dist/references` (the style video and sample drawings) instead of wiping it.
 
----
+## 3. Experience Flow (11 stages)
 
-## 2. Experience Flow (10 stages)
+| # | Stage | UI | Kid action | System behavior | Visual feedback | Transition |
+|---|---|---|---|---|---|---|
+| 1 | **Landing** | Big "Doodle Planet" title over a slowly turning planet, "Let's go!" | Click | World geometry builds behind the title | Clouds drift, birds circle | Panel slides in |
+| 2 | **Pick a drawing** | Sticker panel: drop zone, "Choose a picture", camera button on touch, shelf of 10 sample drawings | Drop, pick, or tap a sample | Validate type and size, decode | Thumbnail pops in | Flips to details |
+| 3 | **Details** | Polaroid preview, "Name your drawing", "Your name", "Tell us about it" | Type or accept defaults, "Put it on the planet!" | Defaults prefilled so one click is enough | Preview tilts | Processing |
+| 4 | **Processing** | "Building your easel..." with cycling lines and a progress bar | Wait ~2.5 s | Downscale, palette, texture | Mini easel card wobbles | Dive |
+| 5 | **Arrival** | Camera dives from space to the plaza | None | Spawn kid and cat, drop the easel from the sky | Squash landing, star burst | Hands over control |
+| 6 | **Explore** | Zone banner, hint line, HUD | Walk (WASD, arrows, click ground, touch joystick), drag to look, wheel to zoom | Collisions with trees, water, buildings | Footsteps bob, banner on entering a zone | n/a |
+| 7 | **Meet the easels** | Easels show a minimised picture; the nearest one perks up and shows "Look [E]" | Walk close | Proximity test | Easel grows, ring pulses, watchers cheer | n/a |
+| 8 | **Carry an easel** | Cursor becomes a hand | Press and drag an easel, release | Raycast to the globe, lift, validate, drop | Easel floats and wobbles, lands with a squash; watchers follow | Water refuses with a friendly shake |
+| 9 | **Full picture** | Cream modal: polaroid picture, thumbnails, prev/next, title, story, palette, **sticky notes** and a note composer | Press E or click an easel, write a note | Save note, pin a tiny sticky on the easel | Notes pop in with a tilt | Close with the X or Esc |
+| 10 | **Planet view** | Label pills over each easel, "My drawings" list | Press the globe button, spin and zoom, click a pill | Slerp the camera, teleport the kid beside it | Clouds and birds around the planet | Dive back down |
+| 11 | **Add another** | Same upload panel over the live world | Plus button | New easel drops beside the kid | Star burst | Back to explore |
 
-| # | Stage | UI | User action | System behavior | Visual feedback | Transition | Tech |
-|---|---|---|---|---|---|---|---|
-| 1 | **Landing** | Dark paper-grain bg, big title "The Afterlife of Darlings", slow-drifting torn-paper scraps, "Enter" button | Click Enter | Preload textures/audio | Scraps parallax with mouse | Fade through black | React + Tailwind, CSS parallax |
-| 2 | **Concept intro** | 3 short typewriter lines: "Every creative has a folder of things that almost existed." / "Most get deleted." / "Not here." | Click / auto-advance | Sequenced text | Cursor blink, subtle paper rustle | Cross-fade | Framer Motion / CSS |
-| 3 | **Rejection moment** | Fake email card: *"Thanks for your submission. We've decided to go in a different direction."* Giant **REJECTED** stamp slams onto a sample design | Click "Send it somewhere better" | Stamp animation, screen shake | Stamp thunk + red ink spread | Email card slides away, drop zone rises | CSS keyframes, audio |
-| 4 | **Upload / drop** | Large dashed "grave plot" drop zone; row of 4 **demo artwork buttons** below | Drag/drop, click to pick, or click a demo | Validate type (png/jpg/webp/svg/gif), read via `FileReader` | Zone glows on hover, thumbnail pops in | None (stays) | File API, `<input type=file>` |
-| 5 | **Processing / transformation** | Artwork shown on a "casket" card; label cycles: "Dusting off…", "Assigning a personality…", "Finding a home…" | Wait ~2.5s (fixed, deterministic) | Downscale on canvas, auto-pick **role** (see §4), generate funny label + filename epitaph | Card folds into a paper plane / swirls into a portal | Portal wipe into world | Canvas, `THREE.CanvasTexture` |
-| 6 | **Entering the world** | Camera starts high above the diorama, dives down | None (cinematic) | Spawn world, play ambient | Fog lifts, god rays/sparkles | Camera spline ~3s | `useFrame` lerp, drei `CameraControls` |
-| 7 | **Artwork appears** | Their entity drops from the sky/portal, lands with a squash-and-stretch; HUD caption "Welcome to the afterlife, *FINAL_v7.png*" | None | Entity spawns at center stage; camera briefly focuses it | Sparkle burst, confetti scraps | Camera eases to orbit view | Spring anim, drei `Sparkles` |
-| 8 | **Exploration** | Orbit/pan/zoom diorama, small HUD (counter: "Darlings rehomed: N") | Drag to orbit, scroll to zoom, WASD optional | Preloaded neighbors wander; day-dusk light drift | Parallax, floating dust, drifting paper | n/a | OrbitControls, scripted paths |
-| 9 | **Interaction** | Hover = outline + label tooltip; click = reaction + speech bubble; approach (proximity) = look-at/wave | Hover, click, **"Upload another"** button | Per-role reaction (hop, spin, hug, honk), bubble from quote pool | Squash, hearts/stars, sound | Camera dolly to clicked entity | Raycast events, `Html` bubbles |
-| 10 | **Emotional payoff** | After ~N interactions or button "Close your eyes": sunset, all entities gather, camera pulls back; text: *"It wasn't worthless. It just needed a different home."* + credit/Adobe line | Click / wait | Scripted finale | Warm light, lanterns/fireflies, music swell | Fade to end card with "Upload another" | Timeline of lerps + overlay text |
+## 4. Visual Direction
 
----
+**Art direction: "Cozy low-poly tiny planet."** Pastel, painterly, handmade, picture-book, never glossy.
 
-## 3. Visual Direction
+- **Palette tokens** (CSS variables and `data/theme.ts`): ink `#22333b`, outline `#1f3340`, cream `#fbf5e6`, paper `#f1e9d8`, globe sky `#5bb8b5`, walk sky `#8fd3c9` to `#c5ebd9`, grass `#58a24b #79c257 #a4d86e`, sand `#e8d9a0`, water `#3fb6b2 #7fd6cf`, foam `#f6fbf7`, sun yellow `#f2c14e`, coral `#ee6c4d`, pink `#f6a6b8`, lilac `#c9b6f2`, sky blue `#9ad4f5`, mint `#a8e6c3`, wood `#c88a54 #a96d3b`.
+- **3D rules:** flat-shaded facets (`flatShading`, vertex colors, mild per-face jitter), no tone mapping so pastels stay pastel, **outline by inflated back-face hull** on trees, rocks and clouds, soft shadows from one sun that follows the camera so the visible side is always lit, **dither fade** on anything between the camera and the kid, CSS **grain** and a very light vignette over the canvas.
+- **Sky:** a CSS gradient behind a transparent canvas. Flat teal in planet view, lighter mint toward the horizon in walk view, a smiling cartoon sun, faint sparkles.
+- **UI kit:** 3px ink outline, 4px hard offset shadow, 18px radius, chunky and at least 48px tall for anything pressable, icon-first labels. Fonts: **Fredoka** (titles, buttons), **Nunito** (body), **Caveat** (sticky notes).
+- **Scale:** planet radius 12 units, kid about 1 unit tall, trees 1.5 to 2.5, an easel about 1.4. A lap on foot takes about 25 seconds.
 
-**Art direction: "Cozy paper-craft afterlife."** Think stop-motion paper diorama, not a generic game level.
+## 5. World layout (12 regions, one per vertex of an icosahedron)
 
-- **Palette:** warm cream `#F4E9D8`, dusk peach `#F7B89A`, dusty lavender `#8E7CC3`, deep teal night `#1F3A4D`, stamp red `#C7392F`, marigold glow `#F2B544`. Low saturation, one hot accent (the stamp red).
-- **Style rules:** flat/toon shading (`MeshToonMaterial` or `MeshBasicMaterial` + fog), paper-grain noise overlay, thick cardboard edges (extruded planes), no realistic PBR.
-- **Lighting:** one warm key light, hemisphere fill, fog in lavender, bloom on lanterns/sparkles. Dusk is the default time of day.
-- **Typography:** one handwritten face for notes (e.g. *Caveat*), one condensed stamp/label face (e.g. *Special Elite*), one clean sans for UI (e.g. *Inter*). Keep all palette/font tokens in one config file so they're easy to swap.
-- **World layout (small diorama, ~30×30 units, circular island on floating cardboard):**
-  - Center: **"Plot of Honor"**, a spotlighted stage for the user's newest upload.
-  - Ring: **Poster Billboards** (floating, bobbing), **UI Tower Village** (stacked card "buildings" with windows), **Creature Meadow** (logo critters), **Memorial Wall** (tiny tombstones with epitaphs, soft glow), **The Archive of FINAL_FINAL_v7** (a leaning stack of folders).
-  - Sky: drifting paper-plane rejections, floating Pantone chips, UI fragments (buttons, cursors, sliders) as clouds.
-  - Props: stamp-pile, coffee mugs, rubber ducks, a "Client Feedback Compost Bin" that blooms flowers.
+Regions are ~63° apart, so every neighbor is a short walk and nothing is crowded. The icosahedron is rotated so the **plaza faces the default camera** and the pond sits to its east.
 
----
+| Region | Terrain and props | Life |
+|---|---|---|
+| **Gallery Green** (spawn) | Flat lawn, dirt ring, cherry trees, flowers, benches, signpost | Rabbits, first easels, watchers |
+| **Lily Pond** | 0.3 rad pond, sand shore, lily pads, a small rainbow | Ducks, butterflies |
+| **Cherry Grove** | Pink trees, soft petals | Birds |
+| **Sunflower Farm** | Barn, windmill, fenced paddock, wheat, haystacks, tractor | Sheep, cows, farmers in straw hats |
+| **Picnic Hill** | Gentle rise, one big tree, blanket and basket | **The family** and their dog |
+| **Pine Woods** | Dense pines, mushrooms, a hush | Birds, a few rabbits |
+| **Cozy Village** | Three pastel cottages, well, fence | Villagers walking |
+| **Duck Pond** | 0.28 rad pond, flowers along the shore | Ducks, a little boat |
+| **Mount Giggle** | One big faceted peak with a snow cap, rock outcrops | Birds overhead |
+| **Twin Hills** | Two smaller peaks, moss rocks | Sheep that wandered off |
+| **Big Blue Lake** | Large lake, sand ring, small sailboat | Ducks |
+| **Sunflower Meadow** | Open flowers, tall grass | Butterflies, rabbits |
 
-## 4. Artwork → Entity (the core illusion)
+**Balance budget:** about 420 trees, 70 rocks, 1,400 flowers, 1,800 grass tufts, 20 clouds, 8 birds, 18 butterflies, 20 animals, 14 people. Dense forest in two regions, open meadow in three, quiet water in three. `?lite` halves all of it.
 
-Everything uses a **textured plane** with the user's image. No rigging, no reconstruction.
+## 6. Artwork to Easel (the core illusion)
 
-**Pipeline:** image → canvas downscale (max 512px) → edge/alpha check → `CanvasTexture` → assign a **role** → spawn.
+Everything is a **textured plane** on a small wooden easel. No reconstruction.
 
-**Role assignment (deterministic, cheap):**
-- Aspect ratio + size heuristic: tall → *Poster/Billboard*; ~1:1 or small → *Creature*; wide → *Building/Floor (UI)*; mid-portrait → *Paper Doll*. **User can override with 5 chips** ("Make it a… creature / billboard / house / doll / relic"). Random fallback if undecided.
+**Pipeline:** file or sample -> decode (EXIF-safe) -> downscale to max 1024 px -> aspect + 4-colour palette -> `CanvasTexture` -> `Artwork` -> spawn.
 
-| Role | Geometry | Motion | Click reaction |
-|---|---|---|---|
-| **Creature** (logos) | Billboard sprite + 2 googly-eyes + tiny feet (primitives) | Hop-walk wander on a circle path, squash/stretch | Spins, says a line, hearts |
-| **Billboard** (posters) | Plane on 2 sticks or floating, cardboard backing | Gentle float + sway, slow rotation | Flips, flashes "APPROVED*" (*by no one) |
-| **House / Tower floor** (UI) | Image on a box face, roof/door primitives, lit windows | Windows flicker, smoke puffs, subtle sway | Door opens, tiny NPC waves |
-| **Paper Doll** (illustrations) | Plane with hinged arms/legs cut from primitives | Walks with pendulum limbs, looks toward cursor | Waves, curtsies |
-| **Relic** (drafts) | Plane in a glowing frame on a pedestal | Rotates, orbiting sparkles | Glows, reveals "version history" |
+| Part | Rule |
+|---|---|
+| **Easel** | Low-poly A-frame, tray, clamp bar, nameplate stake; about 1.4 units tall |
+| **Picture** | Contain-fit inside a white paper board, never cropped; shown on **both faces** (readable from behind) |
+| **Minimised** | 0.8 scale in the world; perks up to 1.1 scale when the kid is near |
+| **Notes** | Each note pins a small coloured sticky to the board edge (up to 6 visible) |
+| **Label** | Title pill over the easel in planet view, "Look [E]" pill in walk view |
+| **Spawn** | Falls from above onto a free spot in front of the kid, squash on landing |
+| **Placement** | Land only, gentle slope only, keeps clear of trees, buildings and other easels; dropping on water slides back with a shake |
+| **Watchers** | 1 to 3 people stand in front of each easel and **follow it** when it is moved |
 
-**Recognizability guarantee:** the artwork is always shown at ≥50% of the entity's front face, uncropped (contain-fit), with a thin paper border. It also appears on the HUD card and the Memorial Wall tombstone, so the user can always point and say "that's mine."
+Neighbor easels are five authored crayon doodles (SVG) by made-up kids, so they never duplicate the pictures a kid uploads. The ten pictures in `dist/references/pics` are the **sample shelf** in the upload step.
 
-**Label generator:** pick from a pool, fill filename: `"{filename}: Client requested something more exciting."`
+## 7. Interaction model
 
----
+- **Move:** WASD or arrows (camera-relative), click or tap the ground to walk there, touch joystick on touch devices. Water and obstacles block.
+- **Look:** drag to orbit, wheel or pinch to zoom, `G` or the globe button toggles planet view.
+- **Open:** `E`, Space or a click on the easel; Esc or the X closes.
+- **Carry:** press and drag an easel; a short drag threshold keeps clicks and drags apart.
+- **Globe math:** the kid is a unit direction plus a tangent heading, stepped along great circles so there are no poles and no seams. Camera poses blend by spherical interpolation so transitions never cut through the planet.
 
-## 5. Emotional Details (cheap, high impact)
-
-Pool for labels/bubbles/tombstones (random per entity):
-- "Client requested something more exciting."
-- "Maybe next quarter."
-- "FINAL_FINAL_v7"
-- "They said the first version was better."
-- "Rejected but still beautiful."
-- "Could you make the logo bigger?"
-- "Love it! Can we start over?"
-- "Moved to the 'Archive' folder. Never opened again."
-- "Died doing what it loved: being exported at 72 DPI."
-
-Environmental touches: memorial plaque ("Here lie 1,204 unused concepts"), a rejected UI becoming a cozy home with a lit window, a logo floating peacefully across the sky with a tiny trailing ribbon, a stamp pile gently decomposing into flowers, a sign: *"No feedback past this point."*
-
----
-
-## 6. Risks & Mitigations
+## 8. Risks & Mitigations
 
 | Risk | Impact | Simplest solution | Fallback |
 |---|---|---|---|
-| Arbitrary file formats | Upload fails live | Accept png/jpg/webp/svg/gif only | 4 **preloaded demo artworks** + buttons |
-| Upload fails on stage | Demo dead | Demo buttons sit next to dropzone | Hidden hotkey (`D`) drops a demo asset |
-| Physics instability | Jitter, tunnelling | No physics at all, scripted sine/lerp paths | n/a (already deterministic) |
-| Performance (too many objects) | Frame drops | Cap at ~25 entities, instanced props, low-poly, DPR ≤ 1.5 | `?lite` mode: fewer props, no postprocessing |
-| Browser differences | Visual bugs | Target **Chrome** on the demo machine only | Pre-recorded 60s backup video |
-| World takes too long | Ugly/incomplete | Small diorama, not an open world | Single hero island, skybox gradient |
-| Texture load/CORS | Black planes | Import demo images from `/public`, use object URLs for uploads | Checker-pattern placeholder texture |
-| WebGL context loss | Black screen | Handle `webglcontextlost`, show reload CTA | Backup video |
-| Audio autoplay blocked | Silence | Start audio on first click (Enter) | Run muted; visuals carry the demo |
-| Wi-Fi at venue | Broken CDN/fonts | Self-host fonts/assets, run `vite preview` locally | Offline build on USB stick |
+| Arbitrary or huge files | Upload fails | Accept png, jpg, webp, gif, svg up to 15 MB, downscale | Sample shelf plus `D` hotkey |
+| HEIC photos from phones | Cannot decode | Friendly message asking for jpg or png | Sample shelf |
+| Too many draw calls | Slow frames | Instance trees, rocks and plants; merge static parts | `?lite` halves content and drops shadows and dither |
+| Dither shader fails to compile | Black or missing props | Patch is isolated in one module | Skip the patch |
+| Drag fights camera drag | Easel will not move | Easel pointer-down claims the gesture | Click-to-walk still works |
+| WebGL context loss | Black screen | Handler shows a reload button | Reload |
+| localStorage full | Progress not saved | try/catch with a toast | Keep working in memory |
+| Kid safety and privacy | Trust | No network calls, no accounts, copy says drawings stay on this device | n/a |
+| Narrow phone screens | UI overlaps | Stack the modal, 16px gutters, large targets | Landscape hint |
 
----
-
-## 7. Implementation Phases
+## 9. Implementation Phases
 
 ### Phase 0, Setup
 - **Goal:** Running skeleton with the stack wired.
-- **Tasks:** `npm create vite` (React + TS); install three, r3f, drei, tailwind, zustand; folder structure (`/screens`, `/world`, `/entities`, `/data`); fonts + palette tokens; stub screens with a state machine (`landing → intro → reject → upload → world`).
-- **Output:** Blank R3F canvas + clickable screen flow.
-- **Definition of Done:** `npm run dev` shows screens advancing; one cube renders in 3D.
+- **Tasks:** new branch, Vite/React/TS/Tailwind/Zustand/R3F kept, fonts (Fredoka, Nunito, Caveat), tokens, sticker UI kit and icons, screen state machine (`landing -> upload -> processing -> world`), transparent canvas over a CSS sky with grain, a faceted planet placeholder, sample drawings copied to `public/samples`, build keeps `dist/references`.
+- **Output:** Clickable flow over a turning low-poly planet.
+- **Definition of Done:** `npm run dev` advances through every screen; `npm run build` passes and leaves `dist/references` untouched.
 
 ### Phase 1, Basic World
-- **Goal:** A small, pretty diorama with no user art yet.
-- **Tasks:** circular floating island, toon materials, fog, lights, sky gradient, orbit camera with limits, 6–8 static props (tombstones, folder stack, stamp pile), drifting paper particles.
-- **Output:** Navigable diorama at 60fps.
-- **Definition of Done:** Looks intentional in a screenshot; orbit/zoom feels good.
+- **Goal:** A pretty tiny planet with no user art yet.
+- **Tasks:** seeded terrain and 12 regions, biome vertex colors, foam water, instanced flora with outlines, buildings, clouds, birds, butterflies, camera-following sun with soft shadows, sky layer, grain, trackball globe camera with inertia and zoom limits, `?lite`.
+- **Output:** Navigable planet at 60 fps.
+- **Definition of Done:** Looks intentional in a screenshot; spin and zoom feel good.
 
 ### Phase 2, Artwork Upload
-- **Goal:** Reliable image intake.
-- **Tasks:** drop zone + file picker; type/size validation; canvas downscale; 4 demo artworks + buttons; processing screen with cycling copy; error toast; `D` hotkey.
-- **Output:** `Artwork { id, name, texture, aspect, role }` in the store.
-- **Definition of Done:** Drop, pick, and demo buttons all produce an artwork object; bad files fail gracefully.
+- **Goal:** Reliable intake a child can finish alone.
+- **Tasks:** drop zone, picker, camera capture, validation, decode and downscale, palette and aspect, sample shelf of 10, details step, processing screen, `D` hotkey, persistence.
+- **Output:** `Artwork { id, title, artist, story, src, aspect, palette, notes, dir, yaw }` in the store.
+- **Definition of Done:** Drop, pick, camera and samples all produce an artwork; bad files fail gracefully.
 
-### Phase 3, Artwork → Entity
-- **Goal:** User art visibly lives in the world.
-- **Tasks:** role heuristic + override chips; 5 entity components (Creature, Billboard, House, Doll, Relic); contain-fit textured planes with paper border; drop-in spawn animation with squash; label generator; tombstone on Memorial Wall; seed world with 6 preloaded neighbors.
-- **Output:** Upload → arrives in world, recognizable.
-- **Definition of Done:** Uploading 3 different images yields 3 recognizably distinct, moving entities.
+### Phase 3, Artwork to Easel
+- **Goal:** Drawings visibly live on the planet among people and animals.
+- **Tasks:** easel model, contain-fit double-sided board, spawn drop, spot finder, five neighbor doodles, people and animals with wander behavior, the family picnic, watchers that gather and follow, name pills in planet view.
+- **Output:** Upload arrives as an easel, in a busy but balanced world.
+- **Definition of Done:** Three different uploads give three distinct easels, each with watchers.
 
 ### Phase 4, Interaction
-- **Goal:** Memorable "it's alive" moments.
-- **Tasks:** hover outline + label; click reactions per role; speech bubbles from quote pool; proximity "look at cursor/wave"; camera focus-on-click; "Upload another" in-world; interaction counter; finale trigger.
-- **Output:** Every entity reacts to hover and click.
-- **Definition of Done:** A first-time user finds ≥3 reactions in 30 seconds without instructions.
+- **Goal:** Walk, carry, read, and leave notes.
+- **Tasks:** kid and cat, camera rig (walk, globe, dive) with blended transitions, movement with collisions, proximity perk-up and prompt pill, easel dragging, full-picture modal with thumbnails and sticky notes, zone banners, HUD buttons, cheers, saved positions and notes.
+- **Output:** A complete loop: upload, arrive, walk, open, note, carry.
+- **Definition of Done:** A first-time kid finds walking, opening and carrying within a minute, without instructions.
 
-### Phase 5, Art Direction & Polish
-- **Goal:** Look art-directed, not a three.js sample.
-- **Tasks:** paper-grain overlay, bloom/vignette, color grading to palette, landing/intro/rejection polish (stamp slam, typewriter), screen transitions, cinematic entry camera, ambient music + SFX, sunset finale + end card, Adobe line.
-- **Output:** Full flow looks and sounds finished.
-- **Definition of Done:** Screenshots of every stage are share-worthy; audio mixes cleanly.
+### Phase 5, Art Direction & Polish (not this round)
+Bloom or color grade, music and sound effects, landing and transition polish, finale moment.
 
-### Phase 6, Demo Reliability
-- **Goal:** Nothing can break on stage.
-- **Tasks:** `?lite` mode and entity cap; WebGL context-loss handler; placeholder texture; offline build via `vite preview`; test on the demo machine/Chrome at projector resolution; run the full flow 10×; record 60–90s backup video; hotkeys (`R` reset, `D` demo art, `F` finale).
-- **Output:** Reset-able, offline-capable build + backup video.
-- **Definition of Done:** 10 consecutive clean runs; recovery from any failure in <5s.
+### Phase 6, Demo Reliability (not this round)
+Entity caps, reset hotkey, offline test on the demo machine, backup video.
 
-### Phase 7, Final Presentation
-- **Goal:** Land the story in 2 minutes.
-- **Tasks:** write script + timings; pick the "hero" rejected artwork (a real team member's, with a true story); rehearse 5×; prepare Q&A (tech stack, scope decisions, Adobe tie-in); devpost/screenshots.
-- **Output:** Rehearsed demo, assets, submission copy.
-- **Definition of Done:** Hits 1:55 ±5s twice in a row; backup plan rehearsed.
+### Phase 7, Final Presentation (not this round)
+Script, rehearsal, submission copy.
 
----
-
-## 8. Two-Minute Demo Script
-
-| Time | Beat | On screen | Say |
-|---|---|---|---|
-| 0:00–0:20 | **Problem** | Real rejected design + email, REJECTED stamp slams | "Every creative has a folder of things that almost existed. This was mine." |
-| 0:20–0:40 | **Idea** | Title card → drop zone | "This is The Afterlife of Darlings. A place for work that didn't get picked." |
-| 0:40–1:30 | **Experience** | Drop the hero artwork → processing → dive into world → it lands → click it, it reacts → pan to neighbors, Memorial Wall, upload a second via demo button | "It isn't deleted. It's *alive*. That's my logo. Hi, little guy." |
-| 1:30–1:50 | **Payoff** | Sunset finale, entities gather, text | "We don't want rejected work to disappear. We wanted to give it somewhere to live." |
-| 1:50–2:00 | **Adobe** | End card | "Adobe gives creators tools to make things. This celebrates the things creators make even when nobody chooses them." |
-
-Rehearsal rule: the demo operator never relies on drag-and-drop live; use the pre-staged file in the picker, with the demo button as backup.
-
----
-
-## 9. Final Priority Classification
+## 10. Final Priority Classification
 
 | Feature | Class |
 |---|---|
-| Landing + concept intro | 🔴 MUST SHIP |
-| Rejection moment (stamp) | 🔴 MUST SHIP |
-| Image upload (drop + picker) | 🔴 MUST SHIP |
-| Demo artwork buttons | 🔴 MUST SHIP |
-| Artwork → textured entity in world | 🔴 MUST SHIP |
-| Movement on every entity | 🔴 MUST SHIP |
-| Orbit exploration of diorama | 🔴 MUST SHIP |
-| ≥1 memorable interaction (click reaction + bubble) | 🔴 MUST SHIP |
-| `?lite` mode / reliability fallbacks | 🔴 MUST SHIP |
-| 5 role types with distinct behavior | 🟡 SHOULD SHIP |
-| Role override chips | 🟡 SHOULD SHIP |
-| Funny labels / tombstones / epitaphs | 🟡 SHOULD SHIP |
-| Preloaded neighbors | 🟡 SHOULD SHIP |
-| Cinematic entry camera + finale | 🟡 SHOULD SHIP |
-| Music + SFX | 🟡 SHOULD SHIP |
-| Bloom / grain / color grade | 🟡 SHOULD SHIP |
-| Proximity reactions | 🟡 SHOULD SHIP |
-| Day→dusk cycle | 🟢 NICE TO HAVE |
-| Share / screenshot button | 🟢 NICE TO HAVE |
-| Persist world in `localStorage` | 🟢 NICE TO HAVE |
-| Rule-based "AI" dialogue variants | 🟢 NICE TO HAVE |
-| 2D→3D rigging / reconstruction | ⚫ DO NOT BUILD |
+| Upload (drop, pick, samples) to easel on the globe | 🔴 MUST SHIP |
+| Low-poly planet with trees, mountains, ponds, animals, birds, butterflies, family, watchers | 🔴 MUST SHIP |
+| Drag an easel anywhere on the globe | 🔴 MUST SHIP |
+| Walk to an easel, interact, full picture | 🔴 MUST SHIP |
+| Notes on a picture | 🔴 MUST SHIP |
+| Minimised easels that perk up when near | 🟡 SHOULD SHIP |
+| Planet view with label pills and "My drawings" | 🟡 SHOULD SHIP |
+| Dither fade, outlines, grain | 🟡 SHOULD SHIP |
+| Persistence in `localStorage` | 🟡 SHOULD SHIP |
+| Touch joystick, camera capture | 🟡 SHOULD SHIP |
+| Zone banners | 🟡 SHOULD SHIP |
+| Music and sound effects | 🟢 NICE TO HAVE |
+| Emoji reactions, day-night cycle | 🟢 NICE TO HAVE |
+| Real multiplayer, accounts, backend | ⚫ DO NOT BUILD |
 | Physics engine | ⚫ DO NOT BUILD |
-| Backend, accounts, multiplayer | ⚫ DO NOT BUILD |
-| PSD/AI/Figma file parsing | ⚫ DO NOT BUILD |
-| Generative AI models / pipelines | ⚫ DO NOT BUILD |
-| Procedural terrain / large open world | ⚫ DO NOT BUILD |
-
----
-
-## 10. Build Order Cheat Sheet
-
-1. Phase 0–1 (get a pretty diorama) · 2. Phase 2–3 (the artwork lives; **this is the demo**) · 3. Phase 4 (interaction) · 4. Phase 6 *before* deep polish (lock reliability) · 5. Phase 5 (polish) · 6. Phase 7 (rehearse).
-
-**Optimize for:** Emotional Impact × Visual Originality × Interaction × Demo Reliability.
+| Generative AI, 2D to 3D reconstruction | ⚫ DO NOT BUILD |
