@@ -1,0 +1,26 @@
+# dependencies and build output: recreated by `npm install` and `npm run build`
+node_modules/
+dist/
+
+# planning notes and the old Artsypedia mock: kept local, not part of the app
+/*.md
+/site/
+
+# local environment and secrets
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+
+# editor and OS clutter
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Vite and TypeScript caches
+*.tsbuildinfo
+.vite/
