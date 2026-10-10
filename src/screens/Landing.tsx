@@ -8,6 +8,9 @@ const WORDS = [
 
 export default function Landing() {
   const setOverlay = useStore((s) => s.setOverlay)
+  const setScreen = useStore((s) => s.setScreen)
+  const setCam = useStore((s) => s.setCam)
+  const returning = useStore((s) => s.artworks.length > 0)
   let n = 0
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-between px-4 pt-[6vh] pb-[5vh] text-center">
@@ -24,8 +27,17 @@ export default function Landing() {
         <p className="pill hit mt-5 !text-base sm:!text-lg">Draw it. Upload it. Watch it come alive!</p>
       </div>
       <div className="flex flex-col items-center gap-3">
-        <Btn big tone="yellow" icon="pencil" onClick={() => setOverlay('upload')}>Let's go!</Btn>
-        <p className="pill !text-sm !border-2 !shadow-none">Your drawings stay on this device</p>
+        {returning ? (
+          <>
+            <Btn big tone="yellow" icon="globe" onClick={() => { setScreen('world'); setCam('globe') }}>Back to my planet</Btn>
+            <Btn icon="plus" onClick={() => setOverlay('upload')}>Add a drawing</Btn>
+          </>
+        ) : (
+          <>
+            <Btn big tone="yellow" icon="pencil" onClick={() => setOverlay('upload')}>Let's go!</Btn>
+            <p className="pill !text-sm !border-2 !shadow-none">Your drawings stay on this device</p>
+          </>
+        )}
       </div>
     </div>
   )
