@@ -17,7 +17,7 @@ import Flora from './Flora'
 import { getWorld } from './layout'
 import Planet from './Planet'
 import { northAt } from './place'
-import { ensureNeighbors } from './spots'
+import { easelCapacity, ensureNeighbors } from './spots'
 import { surfaceRadius } from './terrain'
 import { easels } from '../entities/registry'
 import { REGIONS, type RegionId } from './regions'
@@ -64,6 +64,8 @@ function DevHooks() {
     w.__player = player
     w.__view = view
     w.__world = getWorld()
+    // __capacity() says how many easels fit on the planet at the usual spacing: the number to watch when adding trees or buildings
+    w.__capacity = easelCapacity
     // __look('lily', 0.6) snaps the globe to a region and zooms in (smaller number = closer)
     w.__look = (id: RegionId, zoom = 1) => {
       faceGlobeTo(REGIONS[id].dir)

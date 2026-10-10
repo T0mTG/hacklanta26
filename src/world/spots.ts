@@ -1,6 +1,6 @@
 import { Vector3 } from 'three'
 import { rng } from '../lib/rng'
-import { R, angleBetween, offsetDir, stepOnSphere } from '../lib/sphere'
+import { R, angleBetween, fibonacciSphere, offsetDir, stepOnSphere } from '../lib/sphere'
 import { NOTE_COLORS } from '../data/theme'
 import type { Artwork, Vec3 } from '../data/types'
 import { useStore } from '../store'
@@ -10,23 +10,40 @@ import { REGIONS, SPAWN, type RegionId } from './regions'
 import { isLand, slopeAt } from './terrain'
 
 // Easels need a bit of free ground: land that is not too steep, clear of trees and buildings, and a few steps from other easels.
+// The search starts at `near` and spreads outward; if the first pass finds nothing anywhere it relaxes the rules a little,
+// so there is always somewhere to put a new drawing.
 export function findSpot(near: Vector3, o: { gap?: number; avoid?: Vector3[]; avoidGap?: number; ignoreId?: string } = {}) {
   const gap = o.gap ?? 0.27
   const others = useStore.getState().artworks.filter((a) => a.id !== o.ignoreId).map((a) => new Vector3(...a.dir))
-  const ok = (d: Vector3) =>
-    isLand(d, 0.5) && slopeAt(d) < 0.3 && !blockedAt(d, 1.2, o.ignoreId) &&
-    others.every((p) => angleBetween(d, p) > gap) && (o.avoid ?? []).every((p) => angleBetween(d, p) > (o.avoidGap ?? 0.12))
+  const ok = (d: Vector3, g: number, clear: number, slope: number) =>
+    isLand(d, 0.5) && slopeAt(d) < slope && !blockedAt(d, clear, o.ignoreId) &&
+    others.every((p) => angleBetween(d, p) > g) && (o.avoid ?? []).every((p) => angleBetween(d, p) > (o.avoidGap ?? 0.12))
   const rand = rng(Math.floor(Math.abs(near.x * 977 + near.y * 613 + near.z * 331)))
-  for (const radius of [0, 0.09, 0.16, 0.24, 0.33, 0.43, 0.55, 0.7]) {
-    const n = radius === 0 ? 1 : 18
-    const a0 = rand() * Math.PI * 2
-    for (let k = 0; k < n; k++) {
-      const a = a0 + (k / n) * Math.PI * 2
-      const d = offsetDir(near, Math.cos(a) * radius, Math.sin(a) * radius)
-      if (ok(d)) return d
+  const passes = [
+    { g: gap, clear: 1.2, slope: 0.3, rings: [0, 0.09, 0.16, 0.24, 0.33, 0.43, 0.55, 0.7, 0.9, 1.15, 1.45, 1.8, 2.3] },
+    { g: gap * 0.8, clear: 0.95, slope: 0.4, rings: [0, 0.1, 0.2, 0.33, 0.5, 0.75, 1.0, 1.4, 1.9, 2.5] },
+  ]
+  for (const p of passes) {
+    for (const radius of p.rings) {
+      const n = radius === 0 ? 1 : Math.max(18, Math.round(radius * 40))
+      const a0 = rand() * Math.PI * 2
+      for (let k = 0; k < n; k++) {
+        const a = a0 + (k / n) * Math.PI * 2
+        const d = offsetDir(near, Math.cos(a) * radius, Math.sin(a) * radius)
+        if (ok(d, p.g, p.clear, p.slope)) return d
+      }
     }
   }
   return null
+}
+
+// How many easels could the planet hold at this spacing? Greedily packs every spot that passes the same ground checks.
+export function easelCapacity(gap = 0.27, center?: Vector3, radius = Math.PI) {
+  const pts = fibonacciSphere(8000).filter((d) => !center || angleBetween(d, center) < radius)
+  const good = pts.filter((d) => isLand(d, 0.5) && slopeAt(d) < 0.3 && !blockedAt(d, 1.2))
+  const chosen: Vector3[] = []
+  for (const d of good) if (chosen.every((c) => angleBetween(d, c) > gap)) chosen.push(d)
+  return { openShare: +(good.length / pts.length).toFixed(3), capacity: chosen.length }
 }
 
 const _wf = new Vector3(), _wg = new Vector3()
@@ -100,9 +117,16 @@ const NEIGHBORS: Neighbor[] = [
     notes: [{ text: 'Rawr back at you', by: 'Dad' }, { text: 'Best dino ever', by: 'Nina' }] },
 ]
 
-// Adds any neighbor drawing that is missing. Safe to call every time the world mounts.
+// Adds any neighbor drawing that is missing, and moves any saved easel that now sits inside a tree or a building (the planet's
+// layout can change between versions). Safe to call every time the world mounts.
 export function ensureNeighbors() {
   const s = useStore.getState()
+  for (const a of s.artworks) {
+    const d = new Vector3(...a.dir)
+    if (!blockedAt(d, 0.9) && onLand(d, 0.3)) continue
+    const spot = findSpot(d, { ignoreId: a.id })
+    if (spot) s.patchArtwork(a.id, { dir: spot.toArray() as Vec3, yaw: chooseYaw(spot, a.yaw) })
+  }
   for (const n of NEIGHBORS) {
     const id = `n-${n.id}`
     if (s.artworks.some((a) => a.id === id)) continue

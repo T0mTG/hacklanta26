@@ -3,7 +3,7 @@ import { LITE } from '../lib/env'
 import { clamp, fbm3, lerp, rng, smoothstep } from '../lib/rng'
 import { R, WATER_R, angleBetween, arcDistance, fibonacciSphere, offsetDir } from '../lib/sphere'
 import { FIELDS, PATHS, PLAZA, REGIONS, type RegionId } from './regions'
-import { heightAt, slopeAt } from './terrain'
+import { heightAt, shoreness, slopeAt } from './terrain'
 import { yawToward, type Spot } from './place'
 
 export type TreeKind = 'round' | 'pine' | 'bonsai' | 'cherry' | 'autumn'
@@ -113,28 +113,39 @@ function generate(): World {
   }
   plant({ kind: 'round', dir: offsetDir(REGIONS.picnic.dir, -0.12, 0.07), yaw: 0.3, scale: 1.8, tint: 1 }, 0.2)
 
+  // How much a spot should stay open lawn: the plaza and every pond, farm, village, meadow and the picnic hill keep a clearing
+  // around them, so there is always room to put a drawing down. Real forest is left to the pine woods, the cherry grove and the hills.
+  const openness = (d: Vector3) =>
+    Math.max(
+      mask(angleBetween(d, REGIONS.farm.dir), 0.28, 0.44), mask(angleBetween(d, REGIONS.village.dir), 0.26, 0.42),
+      mask(angleBetween(d, REGIONS.meadow.dir), 0.3, 0.5), mask(angleBetween(d, REGIONS.picnic.dir), 0.2, 0.36),
+      mask(angleBetween(d, REGIONS.lily.dir), 0.36, 0.5), mask(angleBetween(d, REGIONS.duck.dir), 0.36, 0.5),
+      mask(angleBetween(d, REGIONS.lake.dir), 0.42, 0.58),
+    )
+
   for (const p0 of fibonacciSphere(Math.round(13000 * K))) {
     const d = jitter(p0.clone(), 0.02)
     const h = heightAt(d.x, d.y, d.z)
     const above = R + h - WATER_R
-    if (above < 0.42) continue
+    if (above < 0.3) continue
     if (slopeAt(d, h) > 0.66) continue
     const aPlaza = angleBetween(d, PLAZA)
-    if (aPlaza < 0.25 || pathDist(d) < 0.045 || inField(d, 0.02)) continue
-    const wPines = mask(angleBetween(d, REGIONS.pines.dir), 0.12, 0.46)
-    const wCherry = mask(angleBetween(d, REGIONS.cherry.dir), 0.1, 0.42)
-    const wMtn = Math.max(mask(angleBetween(d, REGIONS.giggle.dir), 0.3, 0.62), mask(angleBetween(d, REGIONS.twins.dir), 0.2, 0.55)) * (1 - smoothstep(3.0, 4.2, h))
-    const wRing = smoothstep(0.25, 0.31, aPlaza) * (1 - smoothstep(0.36, 0.52, aPlaza))
-    const shore = 1 - smoothstep(0.5, 1.5, above)
-    const cluster = smoothstep(0.34, 0.62, fbm3(d.x * 2.6 + 11, d.y * 2.6 + 3, d.z * 2.6 + 6, 3))
-    // keep meadows open around the places people gather
-    const open = Math.max(
-      mask(angleBetween(d, REGIONS.farm.dir), 0.26, 0.42), mask(angleBetween(d, REGIONS.village.dir), 0.24, 0.4),
-      mask(angleBetween(d, REGIONS.meadow.dir), 0.28, 0.5), mask(angleBetween(d, REGIONS.picnic.dir), 0.15, 0.32),
-    )
-    const p = clamp(0.035 + 0.85 * wPines + 0.8 * wCherry + 0.5 * wMtn + 0.22 * wRing + 0.22 * shore) * (0.15 + 0.85 * cluster) * (1 - 0.85 * open)
+    if (aPlaza < 0.34 || pathDist(d) < 0.06 || inField(d, 0.03)) continue
+    const wPines = mask(angleBetween(d, REGIONS.pines.dir), 0.14, 0.5)
+    const wCherry = mask(angleBetween(d, REGIONS.cherry.dir), 0.12, 0.46)
+    const wMtn = Math.max(mask(angleBetween(d, REGIONS.giggle.dir), 0.3, 0.6), mask(angleBetween(d, REGIONS.twins.dir), 0.2, 0.5)) * (1 - smoothstep(3.0, 4.2, h))
+    const wRing = smoothstep(0.34, 0.4, aPlaza) * (1 - smoothstep(0.42, 0.55, aPlaza))
+    const shore = shoreness(d)
+    const cluster = smoothstep(0.38, 0.6, fbm3(d.x * 2.6 + 11, d.y * 2.6 + 3, d.z * 2.6 + 6, 3))
+    // lone trees come in small clumps with big gaps between; woods are nearly continuous with only a few clearings
+    const grove = Math.max(wPines, wCherry, wMtn)
+    // low ground right at the water is for sand and reeds; woods may creep a little closer than lone trees
+    if (above < lerp(0.42, 0.3, grove)) continue
+    const patch = lerp(0.2 + 0.8 * cluster, 0.72 + 0.28 * cluster, smoothstep(0.15, 0.6, grove))
+    const p = clamp(0.035 + 1.3 * wPines + 1.3 * wCherry + 0.7 * wMtn + 0.1 * wRing + 0.2 * shore) * patch * (1 - 0.9 * openness(d))
     if (rand() > p) continue
-    const minD = lerp(0.12, 0.08, clamp(p))
+    // lone trees stand well apart; trees in a grove crowd together
+    const minD = lerp(0.17, 0.088, smoothstep(0.1, 0.6, Math.max(wPines, wCherry, wMtn * 0.8)))
     const c = Math.cos(minD)
     if (planted.some((q) => d.dot(q.d) > Math.min(c, q.cos)) || blocked(d, 0.7)) continue
     let kind: TreeKind = 'round'
@@ -148,19 +159,22 @@ function generate(): World {
   }
 
   // ---------- bushes (walk-through) ----------
+  // Undergrowth lives at the foot of trees, so meadows stay clear and groves feel like groves.
   const bushes: Spot[] = []
-  const bushPts: { d: Vector3; cos: number }[] = []
-  for (const p0 of fibonacciSphere(Math.round(5200 * K))) {
-    const d = jitter(p0.clone(), 0.03)
-    const h = heightAt(d.x, d.y, d.z)
-    if (R + h - WATER_R < 0.4 || slopeAt(d, h) > 0.6 || h > 3.2) continue
-    if (angleBetween(d, PLAZA) < 0.24 || pathDist(d) < 0.04 || inField(d, 0.03)) continue
-    const cluster = smoothstep(0.32, 0.62, fbm3(d.x * 3.4 + 4, d.y * 3.4 + 8, d.z * 3.4 + 1, 3))
-    if (rand() > 0.09 + 0.4 * cluster) continue
-    if (bushPts.some((q) => d.dot(q.d) > 0.9982) || blocked(d, 0.5)) continue
-    bushPts.push({ d, cos: 0.9982 })
-    soft.push({ d, r: 0.3 })
-    bushes.push({ dir: d, yaw: rand() * 6.28, scale: 0.7 + rand() * 0.8, tint: 0.88 + rand() * 0.24 })
+  for (const t of trees) {
+    if (t.kind === 'bonsai' || rand() > (t.kind === 'pine' || t.kind === 'cherry' ? 0.9 : 0.45)) continue
+    // a few tries around the trunk, so even a tight wood gets some undergrowth
+    for (let k = 0; k < 4; k++) {
+      const a = rand() * Math.PI * 2, rr = 0.07 + rand() * 0.05
+      const d = offsetDir(t.dir, Math.cos(a) * rr, Math.sin(a) * rr)
+      const h = heightAt(d.x, d.y, d.z)
+      if (R + h - WATER_R < 0.4 || slopeAt(d, h) > 0.6 || h > 3.2) continue
+      if (angleBetween(d, PLAZA) < 0.34 || pathDist(d) < 0.05 || inField(d, 0.03)) continue
+      if (bushes.some((q) => d.dot(q.dir) > 0.9982) || blocked(d, 0.3)) continue
+      soft.push({ d, r: 0.3 })
+      bushes.push({ dir: d, yaw: rand() * 6.28, scale: 0.7 + rand() * 0.8, tint: 0.88 + rand() * 0.24 })
+      break
+    }
   }
 
   // ---------- rocks ----------
@@ -172,7 +186,7 @@ function generate(): World {
     if (above < 0.3 || angleBetween(d, PLAZA) < 0.34 || pathDist(d) < 0.04 || inField(d, 0.02)) continue
     const slope = slopeAt(d, h)
     const wMtn = Math.max(mask(angleBetween(d, REGIONS.giggle.dir), 0.2, 0.62), mask(angleBetween(d, REGIONS.twins.dir), 0.1, 0.55))
-    const p = 0.012 + 0.13 * wMtn + 0.08 * smoothstep(0.35, 0.7, slope) + 0.05 * (1 - smoothstep(0.3, 0.9, above))
+    const p = 0.004 + 0.13 * wMtn + 0.08 * smoothstep(0.35, 0.7, slope) + 0.05 * shoreness(d)
     if (rand() > p || blocked(d, 0.7)) continue
     const scale = 0.4 + rand() * rand() * 1.0 + wMtn * 0.45
     hard.push({ d, r: 0.5 * scale })

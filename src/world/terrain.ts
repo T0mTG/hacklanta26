@@ -47,6 +47,14 @@ export function heightAt(x: number, y: number, z: number) {
   return h
 }
 
+// 1 right at a pond's edge, fading to 0 a few steps inland. Shore plants use this so they grow only where there is a shore:
+// flat meadow sits only ~0.5 above the water level, so a plain height test would count every lawn as a beach.
+export function shoreness(d: Vector3) {
+  let s = 0
+  for (const p of PONDS) s = Math.max(s, 1 - smoothstep(0.78, 1.25, ang(d.x, d.y, d.z, p.c) / p.r))
+  return s
+}
+
 export const surfaceRadius = (d: Vector3) => R + heightAt(d.x, d.y, d.z)
 export const isLand = (d: Vector3, margin = 0.18) => surfaceRadius(d) > WATER_R + margin
 export function surface(d: Vector3, lift = 0, out = new Vector3()) {
