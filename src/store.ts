@@ -13,7 +13,7 @@ interface S {
   reset: () => void
 }
 export const useStore = create<S>((set) => ({
-  screen: 'landing', go: (screen) => set({ screen }),
+  screen: (new URLSearchParams(location.search).get('screen') as Screen) || 'landing', go: (screen) => set({ screen }),
   artworks: [], addArtwork: (a) => set((s) => ({ artworks: [...s.artworks, a] })),
   pending: null, setPending: (pending) => set({ pending }),
   interactions: 0, bump: () => set((s) => ({ interactions: s.interactions + 1 })),
