@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <defs>
+    <filter id="w" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="8" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="7"/>
+    </filter>
+    <filter id="c" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="2" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 -2.2 1.17" result="speck"/>
+      <feComposite in="speck" in2="SourceAlpha" operator="in" result="s2"/>
+      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="s2"/></feMerge>
+    </filter>
+    <path id="star" d="M0 -22 L6 -6 L22 0 L6 6 L0 22 L-6 6 L-22 0 L-6 -6 Z"/>
+  </defs>
+  <rect width="600" height="800" fill="#fffdf5"/>
+  <g filter="url(#w)" stroke="#3a3a3a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <g filter="url(#c)"><rect x="18" y="18" width="564" height="764" fill="#2b3a7a" stroke="none"/></g>
+    <g fill="#ffe27a" stroke="#ffe27a" stroke-width="2">
+      <use href="#star" x="90" y="110"/><use href="#star" x="470" y="200" transform="translate(470 200) scale(.7) translate(-470 -200)"/>
+      <use href="#star" x="520" y="470"/><use href="#star" x="80" y="560" transform="translate(80 560) scale(.8) translate(-80 -560)"/>
+      <use href="#star" x="300" y="70" transform="translate(300 70) scale(.6) translate(-300 -70)"/>
+    </g>
+    <g filter="url(#c)">
+      <path d="M470 70 a56 56 0 1 0 40 96 a44 44 0 1 1 -40 -96 z" fill="#ffe27a"/>
+      <circle cx="120" cy="640" r="60" fill="#c9b6f2"/>
+      <ellipse cx="120" cy="640" rx="100" ry="22" fill="none" stroke="#f6a6b8" stroke-width="12" transform="rotate(-18 120 640)"/>
+      <circle cx="102" cy="628" r="8" fill="#a68ee0" stroke="none"/><circle cx="140" cy="660" r="11" fill="#a68ee0" stroke="none"/>
+    </g>
+    <g filter="url(#c)">
+      <path d="M300 640 q-30 40 0 90 q30 -50 0 -90 z" fill="#ff9d2e"/>
+      <path d="M300 650 q-14 26 0 54 q14 -28 0 -54 z" fill="#ffe27a" stroke="none"/>
+      <path d="M300 130 C370 200 380 330 365 520 L235 520 C220 330 230 200 300 130 Z" fill="#fbf5e6"/>
+      <path d="M300 130 C335 165 352 200 358 240 L242 240 C248 200 265 165 300 130 Z" fill="#e8524a"/>
+      <path d="M235 440 L170 560 L245 520 Z" fill="#e8524a"/>
+      <path d="M365 440 L430 560 L355 520 Z" fill="#e8524a"/>
+      <rect x="252" y="515" width="96" height="40" rx="8" fill="#9aa7b0"/>
+      <circle cx="300" cy="340" r="42" fill="#7fd0ff"/>
+      <circle cx="300" cy="340" r="42" fill="none" stroke="#9aa7b0" stroke-width="10"/>
+      <path d="M284 346 q16 14 32 0" fill="none" stroke-width="4"/>
+      <circle cx="286" cy="330" r="4" fill="#3a3a3a" stroke="none"/><circle cx="314" cy="330" r="4" fill="#3a3a3a" stroke="none"/>
+    </g>
+  </g>
+</svg>

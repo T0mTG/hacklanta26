@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { Vector3 } from 'three'
 import { useStore } from '../store'
 import { clamp } from '../lib/rng'
+import { offsetDir } from '../lib/sphere'
+import { SPAWN } from '../world/regions'
+import { faceGlobeTo, rig } from '../world/rig'
+import { placeNewArtwork } from '../world/spots'
+
+const SPAWN_FRONT = offsetDir(SPAWN, 0, 0.12)
 
 const LINES = ['Unpacking your crayons...', 'Building a wooden easel...', 'Finding the perfect spot...', 'Calling the butterflies...']
 const DURATION = 2600 // fixed so the demo always takes the same time
@@ -17,7 +24,15 @@ export default function Processing() {
       if (p >= 1) {
         window.clearInterval(id)
         const s = useStore.getState()
-        if (s.pending) { s.addArtwork(s.pending); s.stage(null) }
+        if (s.pending) {
+          // drop it just in front of where the kid appears, and turn the globe to watch it land
+          const placed = placeNewArtwork(s.pending, SPAWN_FRONT)
+          s.addArtwork(placed)
+          s.setSpawn(placed.id, 1.0)
+          s.stage(null)
+          faceGlobeTo(new Vector3(...placed.dir))
+          rig.zoomGoal = 0.6
+        }
         s.setScreen('world'); s.setCam('globe'); s.setOverlay(null)
       }
     }, 50)

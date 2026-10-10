@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="700" viewBox="0 0 700 700">
+  <defs>
+    <filter id="w" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="14" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="7"/>
+    </filter>
+    <filter id="c" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="9" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 -2.2 1.17" result="speck"/>
+      <feComposite in="speck" in2="SourceAlpha" operator="in" result="s2"/>
+      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="s2"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="700" height="700" fill="#fffdf5"/>
+  <g filter="url(#w)" stroke="#3a3a3a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <g filter="url(#c)">
+      <rect x="20" y="20" width="660" height="660" fill="#ffe9a6" stroke="none"/>
+      <path d="M20 560 Q350 520 680 560 L680 680 L20 680 Z" fill="#f3cf7a" stroke="none"/>
+    </g>
+    <g filter="url(#c)">
+      <path d="M470 560 Q640 540 600 420 Q580 360 540 400" fill="none" stroke="#f6a04a" stroke-width="34"/>
+      <path d="M470 560 Q640 540 600 420 Q580 360 540 400" fill="none" stroke="#3a3a3a" stroke-width="6" stroke-dasharray="1 30" opacity=".0"/>
+      <ellipse cx="340" cy="450" rx="150" ry="130" fill="#f6a04a"/>
+      <path d="M270 420 q20 -30 40 0 M360 380 q22 -30 44 0 M330 500 q22 -26 44 0" fill="none" stroke="#d9822b" stroke-width="9"/>
+      <ellipse cx="340" cy="500" rx="70" ry="70" fill="#fff3e0" stroke="none"/>
+      <path d="M262 168 L228 70 L318 130 Z" fill="#f6a04a"/><path d="M418 168 L452 70 L362 130 Z" fill="#f6a04a"/>
+      <path d="M262 150 L244 100 L296 132 Z" fill="#f6a6b8" stroke="none"/><path d="M418 150 L436 100 L384 132 Z" fill="#f6a6b8" stroke="none"/>
+      <circle cx="340" cy="230" r="112" fill="#f6a04a"/>
+      <ellipse cx="340" cy="262" rx="60" ry="46" fill="#fff3e0" stroke="none"/>
+      <circle cx="300" cy="215" r="16" fill="#3a3a3a" stroke="none"/><circle cx="380" cy="215" r="16" fill="#3a3a3a" stroke="none"/>
+      <circle cx="305" cy="209" r="5" fill="#fff" stroke="none"/><circle cx="385" cy="209" r="5" fill="#fff" stroke="none"/>
+      <path d="M326 250 h28 l-14 16 z" fill="#f08aa0" stroke-width="4"/>
+      <path d="M340 266 q-14 22 -34 14 M340 266 q14 22 34 14" fill="none" stroke-width="5"/>
+      <path d="M270 262 L190 248 M270 276 L186 290 M410 262 L490 248 M410 276 L494 290" fill="none" stroke-width="4"/>
+    </g>
+    <g filter="url(#c)">
+      <circle cx="170" cy="590" r="46" fill="#f6a6b8"/>
+      <path d="M140 570 q30 18 60 0 M132 592 q38 22 76 0 M146 614 q24 14 48 0" fill="none" stroke-width="4"/>
+      <path d="M205 600 Q260 640 330 620" fill="none" stroke="#f6a6b8" stroke-width="9"/>
+      <path d="M205 600 Q260 640 330 620" fill="none" stroke-width="3"/>
+    </g>
+  </g>
+</svg>

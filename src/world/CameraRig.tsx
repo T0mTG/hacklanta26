@@ -4,7 +4,8 @@ import { Color } from 'three'
 import { damp } from '../lib/rng'
 import { palette } from '../data/theme'
 import { useStore } from '../store'
-import { GLOBE_FOV, blendPose, clampZoom, copyPose, ease, fitDist, inputLock, orbit, rig } from './rig'
+import { R } from '../lib/sphere'
+import { GLOBE_FOV, blendPose, clampZoom, copyPose, ease, fitDist, inputLock, orbit, rig, view } from './rig'
 
 // Title: the planet turns slowly. Planet view: grab and spin it, wheel or pinch to zoom.
 export default function CameraRig() {
@@ -118,6 +119,16 @@ export default function CameraRig() {
     camera.lookAt(p.target)
     const cam3 = camera as typeof camera & { fov: number; updateProjectionMatrix(): void }
     if (Math.abs(cam3.fov - p.fov) > 0.01) { cam3.fov = p.fov; cam3.updateProjectionMatrix() }
+    const o = rig.override
+    if (o) {
+      camera.position.copy(o.pos)
+      camera.up.copy(o.up)
+      camera.lookAt(o.target)
+      if (cam3.fov !== o.fov) { cam3.fov = o.fov; cam3.updateProjectionMatrix() }
+    }
+    view.camera = camera
+    view.camDir.copy(camera.position).normalize()
+    view.horizon = Math.min(0.92, R / camera.position.length()) - 0.3
 
     // the CSS sky behind the canvas goes from flat teal (planet view) to a soft gradient (on the ground)
     if (Math.abs(p.sky - sky.last) > 0.003) {

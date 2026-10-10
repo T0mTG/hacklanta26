@@ -1,10 +1,13 @@
-import { SRGBColorSpace, Texture } from 'three'
+import { useEffect, useState } from 'react'
+import { CanvasTexture, SRGBColorSpace, Texture } from 'three'
 import type { Artwork } from '../data/types'
 
 const cache = new Map<string, Texture>()
+let fallback: Texture | null = null
 
 // Soft checkerboard shown for a moment while the real picture loads
 function placeholder() {
+  if (fallback) return fallback
   const c = document.createElement('canvas')
   c.width = c.height = 64
   const g = c.getContext('2d')!
@@ -12,26 +15,40 @@ function placeholder() {
     g.fillStyle = (x + y) % 2 ? '#fbf5e6' : '#f1e3c4'
     g.fillRect(x * 16, y * 16, 16, 16)
   }
-  return c
+  fallback = new CanvasTexture(c)
+  fallback.colorSpace = SRGBColorSpace
+  return fallback
 }
 
-// One texture per drawing, created on first use. It starts as the placeholder and swaps in the picture when it has loaded.
-export function getTexture(art: Pick<Artwork, 'id' | 'src'>): Texture {
+// A texture is only created once its image has fully loaded. Swapping the image of a texture the GPU already holds
+// is not supported when the size changes, so we never do that: the placeholder is its own texture.
+export function loadTexture(art: Pick<Artwork, 'id' | 'src'>): Promise<Texture> {
   const hit = cache.get(art.id)
-  if (hit) return hit
-  const tex = new Texture()
-  tex.image = placeholder()
-  tex.colorSpace = SRGBColorSpace
-  tex.anisotropy = 8
-  tex.needsUpdate = true
-  cache.set(art.id, tex)
-  const img = new Image()
-  img.onload = () => {
-    tex.image = img
-    tex.needsUpdate = true
-  }
-  img.onerror = () => { /* keep the placeholder */ }
-  img.src = art.src
+  if (hit) return Promise.resolve(hit)
+  return new Promise((res, rej) => {
+    const img = new Image()
+    img.onload = async () => {
+      await img.decode?.().catch(() => {})
+      const tex = new Texture(img)
+      tex.colorSpace = SRGBColorSpace
+      tex.anisotropy = 8
+      tex.needsUpdate = true
+      cache.set(art.id, tex)
+      res(tex)
+    }
+    img.onerror = () => rej(new Error('texture failed'))
+    img.src = art.src
+  })
+}
+
+// The drawing's texture for rendering: the placeholder first, the real picture as soon as it is ready
+export function useArtTexture(art: Pick<Artwork, 'id' | 'src'>) {
+  const [tex, setTex] = useState<Texture>(() => cache.get(art.id) ?? placeholder())
+  useEffect(() => {
+    let alive = true
+    loadTexture(art).then((t) => { if (alive) setTex(t) }).catch(() => {})
+    return () => { alive = false }
+  }, [art.id, art.src]) // eslint-disable-line react-hooks/exhaustive-deps
   return tex
 }
 

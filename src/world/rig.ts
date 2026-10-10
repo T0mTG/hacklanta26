@@ -1,6 +1,6 @@
-import { Vector3 } from 'three'
+import { Vector3, type Camera } from 'three'
 import { clamp } from '../lib/rng'
-import { slerpDir, tangentize } from '../lib/sphere'
+import { R, slerpDir, tangentize } from '../lib/sphere'
 import { PLAZA } from './regions'
 import type { CamMode } from '../store'
 
@@ -19,6 +19,8 @@ export const rig = {
   gDir: PLAZA.clone(), gUp: tangentize(new Vector3(0, 1, 0), PLAZA),
   zoom: 1, zoomGoal: 1, spin: { x: 0, y: 0 },
   aspect: 1, dragging: false,
+  // dev tool: pin the camera somewhere exact (window.__peek), ignoring every mode
+  override: null as null | { pos: Vector3; target: Vector3; up: Vector3; fov: number },
 }
 
 export const ZOOM_MIN = 0.4, ZOOM_MAX = 1.8
@@ -61,6 +63,10 @@ export function blendPose(a: Pose, b: Pose, t: number, out: Pose) {
 }
 
 export const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
+
+// What the camera sees this frame. Things on the far side of the planet skip their per-frame work.
+export const view = { camera: null as Camera | null, camDir: new Vector3(0, 0, 1), horizon: -0.1 }
+export const facing = (dir: Vector3, slack = 0) => dir.dot(view.camDir) > view.horizon + slack
 
 // Pointer gestures on the canvas that other systems (easel dragging) can claim
 export const inputLock = { easel: false }

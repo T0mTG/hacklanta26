@@ -10,7 +10,7 @@ export default function Landing() {
   const setOverlay = useStore((s) => s.setOverlay)
   const setScreen = useStore((s) => s.setScreen)
   const setCam = useStore((s) => s.setCam)
-  const returning = useStore((s) => s.artworks.length > 0)
+  const returning = useStore((s) => s.artworks.some((a) => a.kind !== 'neighbor'))
   let n = 0
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-between px-4 pt-[6vh] pb-[5vh] text-center">

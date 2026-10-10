@@ -2,6 +2,7 @@ import { AnimatePresence } from 'framer-motion'
 import { useStore } from './store'
 import Sky from './ui/Sky'
 import { Btn, Toast } from './ui/kit'
+import EaselLabels from './ui/EaselLabels'
 import Scene from './world/Scene'
 import Landing from './screens/Landing'
 import Upload from './screens/Upload'
@@ -19,6 +20,7 @@ export default function App() {
       <Sky />
       <Scene />
       <div className="ui-layer">
+        {screen === 'world' && <EaselLabels />}
         {screen === 'landing' && overlay === null && <Landing />}
         <AnimatePresence mode="wait">
           {overlay === 'upload' && <Upload key="upload" />}

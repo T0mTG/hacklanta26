@@ -2,14 +2,21 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { PCFShadowMap, Vector2, Vector3, type DirectionalLight } from 'three'
 import { LITE } from '../lib/env'
+import Easels from '../entities/Easels'
+import Population from '../entities/Population'
 import { lerp } from '../lib/rng'
 import { useStore } from '../store'
 import Atmosphere from './Atmosphere'
 import Buildings from './Buildings'
+import Bursts from './Burst'
 import CameraRig from './CameraRig'
 import Flora from './Flora'
 import { getWorld } from './layout'
 import Planet from './Planet'
+import { northAt } from './place'
+import { ensureNeighbors } from './spots'
+import { surfaceRadius } from './terrain'
+import { easels } from '../entities/registry'
 import { REGIONS, type RegionId } from './regions'
 import { GLOBE_FOV, faceGlobeTo, rig } from './rig'
 
@@ -61,6 +68,17 @@ function DevHooks() {
       rig.k = 1
       useStore.getState().setCam('globe')
     }
+    // __peek([x,y,z], distance, pitchDeg, headingDeg, height) puts the camera on the ground looking at that spot; __unpeek() releases it
+    w.__easels = easels
+    w.__peek = (dirArr: number[], dist = 5, pitch = 22, heading = 180, height = 0.8, fov = 55) => {
+      const d = new Vector3(...dirArr).normalize()
+      const look = northAt(d).applyAxisAngle(d, (heading * Math.PI) / 180)
+      const target = d.clone().multiplyScalar(surfaceRadius(d) + height)
+      const p = (pitch * Math.PI) / 180
+      const pos = target.clone().addScaledVector(look, -dist * Math.cos(p)).addScaledVector(d, dist * Math.sin(p))
+      rig.override = { pos, target, up: d.clone(), fov }
+    }
+    w.__unpeek = () => { rig.override = null }
     // draw calls and triangles for the last frame
     w.__stats = () => {
       advance(performance.now())
@@ -87,6 +105,8 @@ function DevHooks() {
 }
 
 function World() {
+  // the planet is never empty: six neighbor drawings are there from the first moment
+  useEffect(() => { ensureNeighbors() }, [])
   return (
     <>
       <hemisphereLight args={['#eefaf5', '#86b57a', 1.9]} />
@@ -95,6 +115,9 @@ function World() {
       <Flora />
       <Buildings />
       <Atmosphere />
+      <Easels />
+      <Population />
+      <Bursts />
     </>
   )
 }

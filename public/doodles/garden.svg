@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <filter id="w" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="21" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="7"/>
+    </filter>
+    <filter id="c" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="4" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 -2.2 1.17" result="speck"/>
+      <feComposite in="speck" in2="SourceAlpha" operator="in" result="s2"/>
+      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="s2"/></feMerge>
+    </filter>
+    <g id="flower"><g stroke-width="5"><circle cx="0" cy="-34" r="22"/><circle cx="32" cy="-10" r="22"/><circle cx="20" cy="28" r="22"/><circle cx="-20" cy="28" r="22"/><circle cx="-32" cy="-10" r="22"/></g><circle r="19" fill="#ffd93b" stroke-width="5"/></g>
+  </defs>
+  <rect width="800" height="600" fill="#fffdf5"/>
+  <g filter="url(#w)" stroke="#3a3a3a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <g filter="url(#c)">
+      <rect x="20" y="20" width="760" height="560" fill="#cfeefa" stroke="none"/>
+      <path d="M20 330 Q250 280 450 330 T780 320 L780 580 L20 580 Z" fill="#8ad463"/>
+    </g>
+    <g filter="url(#c)">
+      <circle cx="680" cy="110" r="52" fill="#ffd93b"/>
+      <circle cx="662" cy="102" r="4" fill="#3a3a3a" stroke="none"/><circle cx="698" cy="102" r="4" fill="#3a3a3a" stroke="none"/>
+      <path d="M660 124 Q680 142 700 124" fill="none"/>
+      <path d="M200 120 q-26 0 -26 -22 q0 -22 28 -18 q8 -26 40 -17 q30 -4 32 20 q30 4 20 28 q-6 16 -34 14 z" fill="#fff"/>
+    </g>
+    <g fill="none" stroke="#3f9a45" stroke-width="7"><path d="M150 560 V430"/><path d="M290 570 V400"/><path d="M450 560 V440"/><path d="M590 570 V420"/><path d="M150 520 q-40 -20 -50 -50 q40 0 50 50" fill="#6fcf5a"/></g>
+    <g filter="url(#c)">
+      <use href="#flower" x="150" y="410" fill="#f6a6b8"/>
+      <use href="#flower" x="290" y="380" fill="#c9b6f2"/>
+      <use href="#flower" x="450" y="420" fill="#ff8f6b"/>
+      <use href="#flower" x="590" y="400" fill="#9ad4f5"/>
+    </g>
+    <g filter="url(#c)">
+      <path d="M520 220 q-40 -50 -10 -80 q20 -10 10 80 z" fill="#ff9ec1"/><path d="M520 220 q40 -50 10 -80 q-20 -10 -10 80 z" fill="#ff9ec1"/>
+      <path d="M520 222 q-30 22 -24 44 q24 -4 24 -44 z" fill="#c9b6f2"/><path d="M520 222 q30 22 24 44 q-24 -4 -24 -44 z" fill="#c9b6f2"/>
+      <path d="M520 150 q-8 -26 -20 -34 M520 150 q8 -26 20 -34" fill="none" stroke-width="4"/>
+    </g>
+    <g filter="url(#c)" transform="translate(330 215)">
+      <ellipse cx="0" cy="0" rx="26" ry="20" fill="#ffd93b"/><path d="M-10 -18 v36 M8 -19 v38" stroke-width="7"/>
+      <ellipse cx="-10" cy="-26" rx="16" ry="10" fill="#ffffff" fill-opacity=".8" stroke-width="4"/><ellipse cx="12" cy="-27" rx="16" ry="10" fill="#ffffff" fill-opacity=".8" stroke-width="4"/>
+    </g>
+    <g filter="url(#c)" transform="translate(690 520)">
+      <ellipse cx="0" cy="22" rx="52" ry="14" fill="#f3cf7a"/>
+      <circle cx="0" cy="-6" r="32" fill="#ff9d5c"/><path d="M0 -6 m-14 0 a14 14 0 1 1 14 14 a8 8 0 1 1 -8 -8" fill="none" stroke-width="5"/>
+      <path d="M32 18 q22 -4 30 -30 M44 14 q10 -22 24 -26" fill="none" stroke="#f3cf7a" stroke-width="9"/><path d="M62 -12 l6 -14 M68 -14 l10 -8" stroke-width="4"/>
+    </g>
+  </g>
+</svg>

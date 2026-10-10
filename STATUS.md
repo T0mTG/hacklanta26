@@ -1,17 +1,17 @@
 # STATUS: Doodle Planet (round 2)
 
-Built so far: PLAN.md Phases 0, 1 and 2. Phases 3 and 4 are next. Round 1 (the graveyard diorama) stays on branch `long`.
+Built so far: PLAN.md Phases 0 to 3. Phase 4 (walking, dragging, the full-picture view with notes) is next. Round 1 (the graveyard diorama) stays on branch `long`.
 
 ## What works
 - **Flow:** landing -> upload panel -> details -> processing -> planet. Returning visitors get "Back to my planet".
-- **Upload:** drag and drop, file picker, camera button on touch devices, and a shelf of the 10 sample drawings (`public/samples`, from `dist/references/pics`). Press `D` on the panel for a surprise drawing that goes straight to the planet.
-- **Intake:** friendly errors for non-pictures, phone HEIC photos, files over 15 MB and unreadable files. Photos keep their rotation, are shrunk to 800 px, flattened on white, and get a 4-color palette read from the crayon colors (paper and ink are skipped).
-- **Details step:** name (defaults from the filename), artist name (remembered), short story.
-- **Saved:** artworks, notes and the artist name are remembered in `localStorage` (`?fresh` clears them). If storage is full a toast says the planet will not be remembered.
-- **World:** a 12-region low-poly planet (plaza, lily pond, cherry grove, farm, picnic hill, pine woods, village, duck pond, Mount Giggle, twin hills, big lake, sunflower meadow) with biome vertex colors, foam-shader water, ~490 outlined trees, bushes, rocks, ~1,900 flowers, grass, wheat, sunflowers, mushrooms, lily pads, cottages, barn, spinning windmill, fence, benches, signpost, tractor, well, boats, picnic blanket and a rainbow gate.
-- **Sky life:** drifting outlined clouds, circling gulls and songbirds, flitting butterflies.
-- **Look:** flat shading, inflated-hull outlines, CSS sky, grain and vignette, camera-following sun with soft shadows, sticker UI kit.
-- **Camera:** the title screen turns the planet; planet view lets you spin it (with inertia), zoom with wheel or pinch.
+- **Upload:** drag and drop, file picker, camera button on touch devices, and a shelf of the 10 sample drawings (`public/samples`, from `dist/references/pics`). `D` on the panel picks a surprise drawing and goes straight to the planet. Friendly errors for non-pictures, HEIC, files over 15 MB and unreadable files. Photos keep their rotation, are shrunk to 800 px and get a 4-color crayon palette.
+- **Easels:** every drawing is a wooden easel with the picture on both faces (contain-fit, paper border), tiny sticky notes pinned for each note, a floating gem in the drawing's color so easels are easy to spot, a ring when selected. A new upload falls out of the sky with a squash landing and a star burst, and the globe turns to watch it.
+- **Neighbors:** six original crayon doodles by made-up kids (`public/doodles`) are on the planet from the start, each with a pre-written note, so uploads never duplicate them.
+- **People:** chunky low-poly kids and grown-ups with different hair, glasses, hats and backpacks. 1 to 3 **watchers** stand in front of every easel, clap now and then, cheer when an easel lands, and walk over when a new one appears. A picnic family (mom waving from the blanket, a girl, dad, a toddler, a dog), villagers and straw-hat farmers wander.
+- **Animals:** sheep and cows in the farm paddock, sheep on the twin hills, rabbits that hop, ducks and ducklings on the three ponds, a cat in the plaza, the family dog.
+- **World:** 12-region low-poly planet with biome vertex colors, foam-shader water, ~490 outlined trees, ~1,900 flowers, wheat, sunflowers, cottages, barn, spinning windmill, fence, tractor, boats, a rainbow gate; clouds, gulls, songbirds and butterflies.
+- **Planet view:** numbered title pills float over each easel; spin with inertia, zoom with wheel or pinch.
+- **Saved:** drawings, notes and the artist name are remembered in `localStorage` (`?fresh` clears them).
 - `?lite` halves the content and drops shadows. `?screen=world` skips the intro.
 
 ## Run
@@ -21,4 +21,4 @@ npm run dev        # or: npm run build && npm run preview
 ```
 
 ## Not done yet
-Easels on the planet (so uploads are stored but not yet drawn in the world), people and animals, walking, dragging, the full-picture view with notes (Phases 3 and 4).
+Walking around as the kid, dragging easels, opening a drawing to see it big and leave notes (Phase 4). No sound.

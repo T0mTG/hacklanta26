@@ -30,6 +30,8 @@ interface S {
 
   // a drawing that has been chosen and named but is not on the planet yet (shown while "building your easel")
   pending: Artwork | null; stage: (a: Artwork | null) => void
+  // the easel that should fall out of the sky when it first appears, and how long to wait before it does
+  spawn: string | null; spawnDelay: number; setSpawn: (id: string | null, delay?: number) => void
 }
 
 let toastTimer = 0
@@ -57,6 +59,7 @@ export const useStore = create<S>()(
         set((s) => ({ artworks: s.artworks.map((a) => (a.id === id ? { ...a, notes: a.notes.filter((n) => n.id !== noteId) } : a)) })),
 
       pending: null, stage: (pending) => set({ pending }),
+      spawn: null, spawnDelay: 0.8, setSpawn: (spawn, delay = 0.8) => set({ spawn, spawnDelay: delay }),
     }),
     {
       name: KEY,
