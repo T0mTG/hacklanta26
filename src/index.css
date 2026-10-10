@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@import "@fontsource/caveat/600.css";
+@import "@fontsource/special-elite";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/600.css";
+@theme {
+  --color-cream: #F4E9D8; --color-peach: #F7B89A; --color-lav: #8E7CC3;
+  --color-teal: #1F3A4D; --color-stamp: #C7392F; --color-gold: #F2B544;
+  --font-hand: 'Caveat', cursive; --font-stamp: 'Special Elite', monospace; --font-ui: 'Inter', sans-serif;
+}
+html,body,#root{height:100%;margin:0;background:#14232e;color:#F4E9D8;font-family:'Inter',sans-serif;overflow:hidden}
+.grain{position:fixed;inset:0;pointer-events:none;opacity:.12;mix-blend-mode:overlay;
+ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+@keyframes slam{0%{transform:scale(4) rotate(-20deg);opacity:0}60%{transform:scale(.9) rotate(-12deg);opacity:1}100%{transform:scale(1) rotate(-12deg);opacity:1}}
+@keyframes shake{0%,100%{transform:translate(0)}20%{transform:translate(-8px,4px)}40%{transform:translate(7px,-5px)}60%{transform:translate(-5px,-3px)}80%{transform:translate(4px,5px)}}
+@keyframes drift{from{transform:translateY(0) rotate(0)}to{transform:translateY(-30px) rotate(12deg)}}
+@keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.btn{font-family:'Special Elite',monospace;background:#F2B544;color:#1F3A4D;padding:.7rem 1.6rem;border-radius:4px;border:2px solid #1F3A4D;box-shadow:4px 4px 0 #1F3A4D;cursor:pointer;font-size:1.1rem}
+.btn:hover{transform:translate(-1px,-1px)}
