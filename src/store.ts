@@ -7,19 +7,21 @@ interface S {
   pending: Artwork | null; setPending: (a: Artwork | null) => void
   interactions: number; bump: () => void
   finale: boolean; setFinale: (b: boolean) => void
-  focusId: string | null; setFocus: (id: string | null) => void
-  hoverId: string | null; setHover: (id: string | null) => void
+  focusId: string | null; focusN: number; setFocus: (id: string | null) => void
   toast: string | null; setToast: (t: string | null) => void
   reset: () => void
 }
+const initial = (new URLSearchParams(location.search).get('screen') as Screen) || 'landing'
 export const useStore = create<S>((set) => ({
-  screen: (new URLSearchParams(location.search).get('screen') as Screen) || 'landing', go: (screen) => set({ screen }),
+  screen: initial, go: (screen) => set({ screen }),
   artworks: [], addArtwork: (a) => set((s) => ({ artworks: [...s.artworks, a] })),
   pending: null, setPending: (pending) => set({ pending }),
   interactions: 0, bump: () => set((s) => ({ interactions: s.interactions + 1 })),
   finale: false, setFinale: (finale) => set({ finale }),
-  focusId: null, setFocus: (focusId) => set({ focusId }),
-  hoverId: null, setHover: (hoverId) => set({ hoverId }),
+  focusId: null, focusN: 0, setFocus: (focusId) => set((s) => ({ focusId, focusN: s.focusN + 1 })),
   toast: null, setToast: (toast) => set({ toast }),
   reset: () => set({ screen: 'landing', artworks: [], pending: null, interactions: 0, finale: false, focusId: null }),
 }))
+
+// World-space home positions of every entity, filled by <Entity> so the camera can find them.
+export const entityPos: Record<string, [number, number]> = {}

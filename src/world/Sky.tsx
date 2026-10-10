@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { useStore } from '../store'
 
 export function SkyDome() {
   const mat = useMemo(() => new THREE.ShaderMaterial({
@@ -9,6 +10,12 @@ export function SkyDome() {
     vertexShader: 'varying vec3 p;void main(){p=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
     fragmentShader: 'uniform vec3 top,mid,bot;varying vec3 p;void main(){float h=p.y;vec3 c=h>0.?mix(mid,top,smoothstep(0.,.8,h)):mix(mid,bot,smoothstep(0.,-.3,h));gl_FragColor=vec4(c,1.);}',
   }), [])
+  const sun = useMemo(() => ({ top: new THREE.Color('#4a2c5a'), mid: new THREE.Color('#F7B89A'), bot: new THREE.Color('#F2B544') }), [])
+  const day = useMemo(() => ({ top: new THREE.Color('#1F3A4D'), mid: new THREE.Color('#8E7CC3'), bot: new THREE.Color('#F7B89A') }), [])
+  useFrame((_, dt) => {
+    const f = useStore.getState().finale ? sun : day
+    for (const k of ['top', 'mid', 'bot'] as const) mat.uniforms[k].value.lerp(f[k], 1 - Math.exp(-dt * 0.8))
+  })
   return <mesh material={mat}><sphereGeometry args={[150, 24, 16]} /></mesh>
 }
 

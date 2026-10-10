@@ -50,10 +50,14 @@ export default function Entities({ lite }: { lite?: boolean }) {
     return () => { dead = true }
   }, [lite])
 
+  const total = neighbors.length + artworks.length
   return (
     <>
-      {neighbors.map((n, i) => <Entity key={'n' + i} art={n.art} pos={n.pos} delay={0.3 + i * 0.25} />)}
-      {artworks.map((a, i) => <Entity key={a.id} art={a} pos={slot(i)} drop delay={i === 0 ? 1.2 : 0.2} hero />)}
+      {neighbors.map((n, i) => <Entity key={'n' + i} art={n.art} pos={n.pos} delay={0.3 + i * 0.25} idx={i} total={total} />)}
+      {artworks.map((a, i) => {
+        const latest = i === artworks.length - 1
+        return <Entity key={a.id} art={a} pos={slot(i)} drop={latest} delay={latest ? 3.2 : 0.4} idx={neighbors.length + i} total={total} user />
+      })}
       {artworks.map((a, i) => <NewTomb key={'t' + a.id} art={a} i={i} />)}
     </>
   )
