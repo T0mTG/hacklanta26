@@ -54,7 +54,11 @@ The terrain colors are tuned per globe (`terrain.ts`, `PALETTES`): the paper pal
 | `pic9.jpg` | green planet with balloons, kids, houses | not used |
 | `pic10.jpg` | big ship on the sea with gulls | ship, seagull |
 
-There are enough distinct pictures. What is missing (a mushroom, rocks, lily pads) is drawn as original crayon-style SVG doodles in `public/doodles-paper`.
+**Result of Phase 1: 138 cut-outs** (79 from the crayon sheet, 38 from the flat sheet, 4 family members, 12 from the sample drawings, 9 original SVG doodles), for 70 kinds: 16 blossoms, 12 flowers, 11 people, 6 rainbows, 4 trees, 4 pines, 2 palms, 3 houses plus a doghouse, about 30 kinds of animals, 3 butterflies and a bee, 3 fish plus a dolphin, a whale and a jellyfish, and boats. There are enough distinct pictures. What the sheets do not have (mushrooms, rocks, lily pads, reeds, and two more fish so the ponds are not one fish repeated) is drawn as original crayon-style SVG doodles in `public/doodles-paper`. Left out on purpose: the scribble monster (a hand and a pen are in the photo), the low-resolution marker family, the planet drawing, and anything scary (snake, crocodile, spider, bat). Hearts, stars, moons and suns are decoration, not things that live on a planet.
+
+Fish are the thinnest set (the crayon sheet has one). The world varies copies with a hue shift in the shader, so a blue fish can be green or pink, and the SVG fish add two more shapes.
+
+The 16 pictures on the demo shelf (tree, cat, dog, fish, flower, person, house, bird, butterfly, mushroom, sheep, cow, elephant, unicorn, whale, chameleon) keep their original crop in `public/paper/raw` so the fake AI has a picture to look at.
 
 ## 4. Architecture
 
@@ -109,4 +113,13 @@ scripts/                  one-off asset tooling (its own package.json, sharp)
 
 ## 8. Cut-out pipeline
 
-`scripts/build-cutouts.mjs` reads `scripts/cutouts.manifest.json` (explicit crop rectangles, chosen by eye from labelled contact sheets made by `scripts/sheet-components.mjs`), and for each element: crops, keys out the background by flood fill from the edges (treating drawn lines as walls), keeps the main drawing and its nearby parts, adds a thin black outline and a white paper border, trims, and writes `public/paper/<id>.webp`, the outline polygon and colors into `src/paper/library.gen.ts`, and (for the demo shelf) a `raw` picture so the fake AI has something to "look at".
+`npm run cutouts` (installs `sharp` into `scripts/` on first use) runs `scripts/build-cutouts.mjs`. It reads `scripts/cutouts.manifest.json`: sheets, and one explicit crop rectangle per element (chosen by eye from labelled contact sheets made with `scripts/sheet-components.mjs`, `scripts/tile.mjs` and `scripts/crop-grid.mjs`). For each element it:
+
+1. crops the rectangle and finds the lines of the drawing (pixels that are not paper, or only the dark ones for pictures that have a colored background);
+2. widens the lines a little so small gaps stay shut, and floods from the edge of the crop: the page is everything the flood reaches, so everything a line encloses (white wool, a window, a belly) stays;
+3. keeps the main drawing (and, when asked, its other big parts), shrinks the cut back to the lines, and applies drop rectangles, a clipping polygon or page colors where a neighboring drawing touches;
+4. scales it (at most 420 to 460 px), adds a thin black outline and a white paper border from a distance transform, and trims;
+5. traces the silhouette with marching squares, simplifies it to at most 84 points, finds where the foot is and the main colors;
+6. writes `public/paper/<id>.webp`, `public/paper/raw/<id>.jpg` for shelf pictures, and `src/paper/library.gen.ts`.
+
+`node scripts/build-cutouts.mjs --contact <dir>` also writes contact sheets (every cut-out on grass) for checking by eye, and `?sheet` in the app shows the same library with the outline and the foot drawn on top. The whole run takes about 10 seconds.

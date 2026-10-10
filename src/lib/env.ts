@@ -6,3 +6,4 @@ export const FRESH = q.has('fresh')
 export const START_SCREEN = q.get('screen')
 export const DEBUG = q.has('debug')
 export const GLOBE_PARAM = q.get('globe')
+export const SHEET = q.has('sheet') // ?sheet: the library debug sheet instead of the app

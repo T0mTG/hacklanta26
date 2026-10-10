@@ -1,0 +1,9 @@
+{
+  "name": "doodle-planet-scripts",
+  "private": true,
+  "type": "module",
+  "description": "One-off asset tooling for the Paper Globe (cut-outs). Not part of the app build.",
+  "dependencies": {
+    "sharp": "^0.34.3"
+  }
+}

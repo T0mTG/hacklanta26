@@ -1,4 +1,6 @@
 import { AnimatePresence } from 'framer-motion'
+import { SHEET } from './lib/env'
+import DebugSheet from './paper/DebugSheet'
 import { useStore } from './store'
 import Sky from './ui/Sky'
 import { Toast } from './ui/kit'
@@ -12,6 +14,11 @@ import Upload from './screens/Upload'
 import Processing from './screens/Processing'
 
 export default function App() {
+  if (SHEET) return <DebugSheet />
+  return <Game />
+}
+
+function Game() {
   const screen = useStore((s) => s.screen)
   const overlay = useStore((s) => s.overlay)
   const globe = useStore((s) => s.globe)

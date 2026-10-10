@@ -1,0 +1,2129 @@
+{
+ "sheets": {
+  "crayon": {
+   "file": "dist/references/pics/AdobeStock_374926901.jpeg"
+  },
+  "flat": {
+   "file": "dist/references/pics/AdobeStock_501863760.jpeg"
+  },
+  "family": {
+   "file": "dist/references/pics/AdobeStock_641878981.png",
+   "alpha": true
+  },
+  "dog": {
+   "file": "dist/references/pics/pic1.webp"
+  },
+  "whale": {
+   "file": "dist/references/pics/pic3.jpg"
+  },
+  "bird": {
+   "file": "dist/references/pics/pic4.jpg"
+  },
+  "house": {
+   "file": "dist/references/pics/pic5.jpg"
+  },
+  "chameleon": {
+   "file": "dist/references/pics/pic6.jpg"
+  },
+  "buddy": {
+   "file": "dist/references/pics/pic7.jpg"
+  },
+  "ship": {
+   "file": "dist/references/pics/pic10.jpg"
+  },
+  "mushroom": {
+   "file": "public/doodles-paper/mushroom.svg",
+   "width": 640
+  },
+  "toadstool": {
+   "file": "public/doodles-paper/toadstool.svg",
+   "width": 640
+  },
+  "rock": {
+   "file": "public/doodles-paper/rock.svg",
+   "width": 640
+  },
+  "boulder": {
+   "file": "public/doodles-paper/boulder.svg",
+   "width": 640
+  },
+  "lilypad": {
+   "file": "public/doodles-paper/lilypad.svg",
+   "width": 640
+  },
+  "reeds": {
+   "file": "public/doodles-paper/reeds.svg",
+   "width": 560
+  },
+  "fish-orange": {
+   "file": "public/doodles-paper/fish-orange.svg",
+   "width": 640
+  },
+  "fish-green": {
+   "file": "public/doodles-paper/fish-green.svg",
+   "width": 640
+  }
+ },
+ "elements": [
+  {
+   "id": "tree-apple",
+   "label": "Apple tree",
+   "kind": "tree",
+   "sheet": "crayon",
+   "rect": [
+    2385,
+    1295,
+    415,
+    655
+   ],
+   "drop": [
+    [
+     2630,
+     1240,
+     120,
+     102
+    ]
+   ],
+   "shelf": true
+  },
+  {
+   "id": "palm-a",
+   "label": "Palm tree",
+   "kind": "palm",
+   "sheet": "crayon",
+   "rect": [
+    1212,
+    592,
+    385,
+    389
+   ]
+  },
+  {
+   "id": "palm-b",
+   "label": "Palm tree",
+   "kind": "palm",
+   "sheet": "crayon",
+   "rect": [
+    1956,
+    3083,
+    329,
+    365
+   ]
+  },
+  {
+   "id": "pine-a",
+   "label": "Pine tree",
+   "kind": "pine",
+   "sheet": "crayon",
+   "rect": [
+    712,
+    86,
+    275,
+    291
+   ]
+  },
+  {
+   "id": "pine-b",
+   "label": "Pine tree",
+   "kind": "pine",
+   "sheet": "crayon",
+   "rect": [
+    1500,
+    2204,
+    283,
+    293
+   ]
+  },
+  {
+   "id": "pine-c",
+   "label": "Pine tree",
+   "kind": "pine",
+   "sheet": "crayon",
+   "rect": [
+    481,
+    2912,
+    255,
+    263
+   ]
+  },
+  {
+   "id": "sapling",
+   "label": "Little tree",
+   "kind": "tree",
+   "sheet": "crayon",
+   "rect": [
+    1536,
+    3486,
+    237,
+    419
+   ],
+   "size": 1.9
+  },
+  {
+   "id": "bush-scribble",
+   "label": "Green bush",
+   "kind": "bush",
+   "sheet": "crayon",
+   "rect": [
+    2359,
+    309,
+    301,
+    277
+   ]
+  },
+  {
+   "id": "flower-red-stem",
+   "label": "Red flower",
+   "kind": "flower",
+   "sheet": "crayon",
+   "rect": [
+    2275,
+    3308,
+    231,
+    193
+   ],
+   "shelf": true
+  },
+  {
+   "id": "flower-red-stem-b",
+   "label": "Red flower",
+   "kind": "flower",
+   "sheet": "crayon",
+   "rect": [
+    1520,
+    965,
+    295,
+    245
+   ]
+  },
+  {
+   "id": "daisies",
+   "label": "Daisies",
+   "kind": "flower",
+   "sheet": "crayon",
+   "rect": [
+    2828,
+    34,
+    291,
+    209
+   ],
+   "size": 0.8
+  },
+  {
+   "id": "flower-bunch",
+   "label": "Flower bunch",
+   "kind": "flower",
+   "sheet": "crayon",
+   "rect": [
+    3211,
+    3751,
+    239,
+    164
+   ],
+   "size": 0.7
+  },
+  {
+   "id": "blossom-pink-a",
+   "label": "Pink flower",
+   "kind": "blossom",
+   "sheet": "crayon",
+   "rect": [
+    507,
+    1131,
+    156,
+    154
+   ]
+  },
+  {
+   "id": "blossom-pink-b",
+   "label": "Pink flower",
+   "kind": "blossom",
+   "sheet": "crayon",
+   "rect": [
+    475,
+    2706,
+    166,
+    168
+   ]
+  },
+  {
+   "id": "blossom-pink-c",
+   "label": "Pink flower",
+   "kind": "blossom",
+   "sheet": "crayon",
+   "rect": [
+    3304,
+    2700,
+    201,
+    201
+   ]
+  },
+  {
+   "id": "blossom-pink-d",
+   "label": "Pink flower",
+   "kind": "blossom",
+   "sheet": "crayon",
+   "rect": [
+    337,
+    3625,
+    166,
+    170
+   ]
+  },
+  {
+   "id": "blossom-lilac-a",
+   "label": "Lilac flower",
+   "kind": "blossom",
+   "sheet": "crayon",
+   "rect": [
+    319,
+    1480,
+    223,
+    211
+   ]
+  },
+  {
+   "id": "blossom-lilac-b",
+   "label": "Lilac flower",
+   "kind": "blossom",
+   "sheet": "crayon",
+   "rect": [
+    824,
+    1492,
+    158,
+    154
+   ]
+  },
+  {
+   "id": "blossom-lilac-c",
+   "label": "Lilac flower",
+   "kind": "blossom",
+   "sheet": "crayon",
+   "rect": [
+    3360,
+    2465,
+    158,
+    130
+   ]
+  },
+  {
+   "id": "blossom-purple",
+   "label": "Purple flower",
+   "kind": "blossom",
+   "sheet": "crayon",
+   "rect": [
+    1324,
+    385,
+    156,
+    130
+   ]
+  },
+  {
+   "id": "blossom-coral",
+   "label": "Coral flower",
+   "kind": "blossom",
+   "sheet": "crayon",
+   "rect": [
+    1516,
+    2515,
+    164,
+    130
+   ]
+  },
+  {
+   "id": "blossom-coral-b",
+   "label": "Coral flower",
+   "kind": "blossom",
+   "sheet": "crayon",
+   "rect": [
+    1711,
+    3177,
+    154,
+    152
+   ]
+  },
+  {
+   "id": "blossom-red",
+   "label": "Red daisy",
+   "kind": "blossom",
+   "sheet": "crayon",
+   "rect": [
+    3556,
+    2567,
+    183,
+    166
+   ]
+  },
+  {
+   "id": "house-orange",
+   "label": "Orange house",
+   "kind": "house",
+   "sheet": "crayon",
+   "rect": [
+    640,
+    1637,
+    459,
+    532
+   ],
+   "shelf": true
+  },
+  {
+   "id": "house-green",
+   "label": "Green house",
+   "kind": "house",
+   "sheet": "crayon",
+   "rect": [
+    43,
+    1330,
+    255,
+    300
+   ],
+   "drop": [
+    [
+     290,
+     1300,
+     140,
+     150
+    ]
+   ]
+  },
+  {
+   "id": "kid-boy",
+   "label": "Boy",
+   "kind": "person",
+   "sheet": "crayon",
+   "rect": [
+    1130,
+    970,
+    400,
+    610
+   ],
+   "shelf": true,
+   "max": 460
+  },
+  {
+   "id": "kid-girl-blue",
+   "label": "Girl",
+   "kind": "person",
+   "sheet": "crayon",
+   "rect": [
+    2670,
+    975,
+    475,
+    570
+   ],
+   "drop": [
+    [
+     2590,
+     1150,
+     122,
+     190
+    ]
+   ],
+   "max": 460
+  },
+  {
+   "id": "kid-princess",
+   "label": "Princess",
+   "kind": "person",
+   "sheet": "crayon",
+   "rect": [
+    3141,
+    1424,
+    365,
+    638
+   ],
+   "max": 460
+  },
+  {
+   "id": "kid-girl-red",
+   "label": "Girl",
+   "kind": "person",
+   "sheet": "crayon",
+   "rect": [
+    1577,
+    1653,
+    395,
+    582
+   ],
+   "max": 460
+  },
+  {
+   "id": "mom",
+   "label": "Mom",
+   "kind": "person",
+   "sheet": "crayon",
+   "rect": [
+    2470,
+    1955,
+    385,
+    605
+   ],
+   "drop": [
+    [
+     2400,
+     2085,
+     112,
+     125
+    ]
+   ],
+   "max": 460
+  },
+  {
+   "id": "toddler",
+   "label": "Little kid",
+   "kind": "person",
+   "sheet": "crayon",
+   "rect": [
+    2200,
+    2164,
+    383,
+    413
+   ],
+   "drop": [
+    [
+     2150,
+     2385,
+     135,
+     225
+    ]
+   ],
+   "size": 1.0,
+   "max": 460
+  },
+  {
+   "id": "cat-glasses",
+   "label": "Cat",
+   "kind": "cat",
+   "sheet": "crayon",
+   "rect": [
+    2000,
+    1743,
+    425,
+    403
+   ],
+   "face": "L",
+   "shelf": true
+  },
+  {
+   "id": "cat-small",
+   "label": "Kitten",
+   "kind": "cat",
+   "sheet": "crayon",
+   "rect": [
+    2845,
+    1450,
+    280,
+    390
+   ],
+   "face": "F",
+   "size": 0.6
+  },
+  {
+   "id": "dog-brown",
+   "label": "Dog",
+   "kind": "dog",
+   "sheet": "crayon",
+   "rect": [
+    1181,
+    2238,
+    335,
+    387
+   ],
+   "face": "L"
+  },
+  {
+   "id": "horse",
+   "label": "Horse",
+   "kind": "horse",
+   "sheet": "crayon",
+   "rect": [
+    213,
+    1775,
+    377,
+    520
+   ],
+   "face": "R"
+  },
+  {
+   "id": "sheep",
+   "label": "Sheep",
+   "kind": "sheep",
+   "sheet": "crayon",
+   "rect": [
+    2800,
+    1855,
+    411,
+    401
+   ],
+   "face": "L",
+   "shelf": true
+  },
+  {
+   "id": "cow",
+   "label": "Cow",
+   "kind": "cow",
+   "sheet": "crayon",
+   "rect": [
+    277,
+    3111,
+    467,
+    429
+   ],
+   "face": "L",
+   "shelf": true
+  },
+  {
+   "id": "pig",
+   "label": "Pig",
+   "kind": "pig",
+   "sheet": "crayon",
+   "rect": [
+    2427,
+    2924,
+    347,
+    385
+   ],
+   "face": "L"
+  },
+  {
+   "id": "goat",
+   "label": "Goat",
+   "kind": "goat",
+   "sheet": "crayon",
+   "rect": [
+    860,
+    2825,
+    430,
+    500
+   ],
+   "drop": [
+    [
+     1000,
+     2690,
+     116,
+     182
+    ]
+   ],
+   "face": "R"
+  },
+  {
+   "id": "fox",
+   "label": "Fox",
+   "kind": "fox",
+   "sheet": "crayon",
+   "rect": [
+    1041,
+    3508,
+    481,
+    451
+   ],
+   "face": "L"
+  },
+  {
+   "id": "deer",
+   "label": "Deer",
+   "kind": "deer",
+   "sheet": "crayon",
+   "rect": [
+    3446,
+    0,
+    327,
+    532
+   ],
+   "face": "L"
+  },
+  {
+   "id": "zebra",
+   "label": "Zebra",
+   "kind": "zebra",
+   "sheet": "crayon",
+   "rect": [
+    766,
+    383,
+    522,
+    339
+   ],
+   "face": "L"
+  },
+  {
+   "id": "elephant-lilac",
+   "label": "Elephant",
+   "kind": "elephant",
+   "sheet": "crayon",
+   "rect": [
+    231,
+    552,
+    542,
+    433
+   ],
+   "face": "R"
+  },
+  {
+   "id": "rhino",
+   "label": "Rhino",
+   "kind": "rhino",
+   "sheet": "crayon",
+   "rect": [
+    2706,
+    327,
+    477,
+    321
+   ],
+   "face": "L"
+  },
+  {
+   "id": "lion",
+   "label": "Lion",
+   "kind": "lion",
+   "sheet": "crayon",
+   "rect": [
+    1101,
+    1759,
+    501,
+    429
+   ],
+   "face": "L"
+  },
+  {
+   "id": "camel",
+   "label": "Camel",
+   "kind": "camel",
+   "sheet": "crayon",
+   "rect": [
+    2060,
+    2360,
+    430,
+    560
+   ],
+   "drop": [
+    [
+     2040,
+     2860,
+     45,
+     120
+    ]
+   ],
+   "face": "L"
+  },
+  {
+   "id": "kangaroo",
+   "label": "Kangaroo",
+   "kind": "kangaroo",
+   "sheet": "crayon",
+   "rect": [
+    2852,
+    2325,
+    469,
+    568
+   ],
+   "face": "L"
+  },
+  {
+   "id": "monkey",
+   "label": "Monkey",
+   "kind": "monkey",
+   "sheet": "crayon",
+   "rect": [
+    624,
+    2451,
+    405,
+    425
+   ]
+  },
+  {
+   "id": "bear",
+   "label": "Bear",
+   "kind": "bear",
+   "sheet": "crayon",
+   "rect": [
+    1318,
+    2874,
+    349,
+    465
+   ]
+  },
+  {
+   "id": "panda",
+   "label": "Panda",
+   "kind": "panda",
+   "sheet": "crayon",
+   "rect": [
+    3131,
+    3147,
+    377,
+    379
+   ]
+  },
+  {
+   "id": "squirrel",
+   "label": "Squirrel",
+   "kind": "squirrel",
+   "sheet": "crayon",
+   "rect": [
+    2762,
+    3544,
+    433,
+    381
+   ],
+   "face": "L"
+  },
+  {
+   "id": "mouse",
+   "label": "Mouse",
+   "kind": "mouse",
+   "sheet": "crayon",
+   "rect": [
+    28,
+    2945,
+    259,
+    445
+   ]
+  },
+  {
+   "id": "rabbit-blue",
+   "label": "Bunny",
+   "kind": "rabbit",
+   "sheet": "crayon",
+   "rect": [
+    1932,
+    38,
+    483,
+    357
+   ]
+  },
+  {
+   "id": "hedgehog-grey",
+   "label": "Hedgehog",
+   "kind": "hedgehog",
+   "sheet": "crayon",
+   "rect": [
+    18,
+    1661,
+    295,
+    407
+   ]
+  },
+  {
+   "id": "hedgehog-white",
+   "label": "Hedgehog",
+   "kind": "hedgehog",
+   "sheet": "crayon",
+   "rect": [
+    3197,
+    106,
+    229,
+    265
+   ],
+   "face": "L"
+  },
+  {
+   "id": "caterpillar",
+   "label": "Caterpillar",
+   "kind": "caterpillar",
+   "sheet": "crayon",
+   "rect": [
+    76,
+    869,
+    439,
+    265
+   ],
+   "face": "L"
+  },
+  {
+   "id": "snail",
+   "label": "Snail",
+   "kind": "snail",
+   "sheet": "crayon",
+   "rect": [
+    3478,
+    2778,
+    311,
+    391
+   ],
+   "face": "R"
+  },
+  {
+   "id": "frog",
+   "label": "Frog",
+   "kind": "frog",
+   "sheet": "crayon",
+   "rect": [
+    2730,
+    3177,
+    385,
+    347
+   ]
+  },
+  {
+   "id": "car-pink",
+   "label": "Pink car",
+   "kind": "car",
+   "sheet": "crayon",
+   "rect": [
+    86,
+    1151,
+    303,
+    211
+   ],
+   "face": "R"
+  },
+  {
+   "id": "car-yellow",
+   "label": "Yellow car",
+   "kind": "car",
+   "sheet": "crayon",
+   "rect": [
+    225,
+    2335,
+    301,
+    211
+   ],
+   "face": "R"
+  },
+  {
+   "id": "duck-yellow",
+   "label": "Duck",
+   "kind": "duck",
+   "sheet": "crayon",
+   "rect": [
+    1304,
+    40,
+    305,
+    329
+   ],
+   "face": "R"
+  },
+  {
+   "id": "bird-lilac",
+   "label": "Little bird",
+   "kind": "bird",
+   "sheet": "crayon",
+   "rect": [
+    1837,
+    2154,
+    255,
+    317
+   ],
+   "face": "L"
+  },
+  {
+   "id": "chick-olive",
+   "label": "Chick",
+   "kind": "chick",
+   "sheet": "crayon",
+   "rect": [
+    245,
+    2624,
+    160,
+    289
+   ],
+   "face": "R"
+  },
+  {
+   "id": "toucan",
+   "label": "Toucan",
+   "kind": "bird",
+   "sheet": "crayon",
+   "rect": [
+    2212,
+    3590,
+    467,
+    363
+   ],
+   "face": "L"
+  },
+  {
+   "id": "chick-yellow",
+   "label": "Chick",
+   "kind": "chick",
+   "sheet": "crayon",
+   "rect": [
+    3446,
+    1896,
+    229,
+    175
+   ],
+   "face": "L"
+  },
+  {
+   "id": "rooster-a",
+   "label": "Rooster",
+   "kind": "rooster",
+   "sheet": "crayon",
+   "rect": [
+    2836,
+    656,
+    281,
+    405
+   ],
+   "face": "R"
+  },
+  {
+   "id": "rooster-b",
+   "label": "Hen",
+   "kind": "rooster",
+   "sheet": "crayon",
+   "rect": [
+    1750,
+    2735,
+    310,
+    430
+   ],
+   "face": "L"
+  },
+  {
+   "id": "peacock",
+   "label": "Peacock",
+   "kind": "peacock",
+   "sheet": "crayon",
+   "rect": [
+    3422,
+    1210,
+    351,
+    459
+   ]
+  },
+  {
+   "id": "stork",
+   "label": "Stork",
+   "kind": "stork",
+   "sheet": "crayon",
+   "rect": [
+    0,
+    2265,
+    335,
+    564
+   ],
+   "face": "R"
+  },
+  {
+   "id": "butterfly-pink",
+   "label": "Butterfly",
+   "kind": "butterfly",
+   "sheet": "crayon",
+   "rect": [
+    1041,
+    122,
+    239,
+    227
+   ]
+  },
+  {
+   "id": "butterfly-orange",
+   "label": "Butterfly",
+   "kind": "butterfly",
+   "sheet": "crayon",
+   "rect": [
+    2662,
+    2672,
+    183,
+    195
+   ],
+   "size": 0.4
+  },
+  {
+   "id": "butterfly-big",
+   "label": "Big butterfly",
+   "kind": "butterfly",
+   "sheet": "crayon",
+   "rect": [
+    586,
+    3474,
+    443,
+    461
+   ],
+   "size": 0.6,
+   "shelf": true
+  },
+  {
+   "id": "bee",
+   "label": "Bee",
+   "kind": "bee",
+   "sheet": "crayon",
+   "rect": [
+    3300,
+    3530,
+    217,
+    201
+   ]
+  },
+  {
+   "id": "fish-blue",
+   "label": "Fish",
+   "kind": "fish",
+   "sheet": "crayon",
+   "rect": [
+    277,
+    38,
+    399,
+    263
+   ],
+   "face": "L",
+   "shelf": true
+  },
+  {
+   "id": "dolphin",
+   "label": "Dolphin",
+   "kind": "dolphin",
+   "sheet": "crayon",
+   "rect": [
+    2,
+    62,
+    231,
+    692
+   ],
+   "rot": 270,
+   "face": "R"
+  },
+  {
+   "id": "jellyfish",
+   "label": "Jellyfish",
+   "kind": "jellyfish",
+   "sheet": "crayon",
+   "rect": [
+    3444,
+    2090,
+    335,
+    343
+   ]
+  },
+  {
+   "id": "starfish",
+   "label": "Starfish",
+   "kind": "starfish",
+   "sheet": "crayon",
+   "rect": [
+    14,
+    3614,
+    293,
+    311
+   ]
+  },
+  {
+   "id": "swan",
+   "label": "Swan",
+   "kind": "swan",
+   "sheet": "crayon",
+   "rect": [
+    1797,
+    3476,
+    339,
+    481
+   ],
+   "face": "L"
+  },
+  {
+   "id": "sailboat",
+   "label": "Sailboat",
+   "kind": "boat",
+   "sheet": "crayon",
+   "rect": [
+    2130,
+    1528,
+    273,
+    251
+   ],
+   "face": "R"
+  },
+  {
+   "id": "family-mom",
+   "label": "Mom",
+   "kind": "person",
+   "sheet": "family",
+   "rect": [
+    480,
+    300,
+    940,
+    3000
+   ],
+   "max": 460
+  },
+  {
+   "id": "family-aunt",
+   "label": "Auntie",
+   "kind": "person",
+   "sheet": "family",
+   "rect": [
+    1420,
+    330,
+    1012,
+    2960
+   ],
+   "max": 460
+  },
+  {
+   "id": "family-kid",
+   "label": "Kid",
+   "kind": "person",
+   "sheet": "family",
+   "rect": [
+    2432,
+    1100,
+    720,
+    2220
+   ],
+   "max": 460,
+   "size": 1.0
+  },
+  {
+   "id": "family-dad",
+   "label": "Dad",
+   "kind": "person",
+   "sheet": "family",
+   "rect": [
+    3152,
+    230,
+    1100,
+    3150
+   ],
+   "max": 460
+  },
+  {
+   "id": "dog",
+   "label": "Dog",
+   "kind": "dog",
+   "sheet": "dog",
+   "rect": [
+    40,
+    140,
+    505,
+    600
+   ],
+   "mode": "dark",
+   "thr": 60,
+   "face": "F",
+   "drop": [
+    [
+     330,
+     150,
+     240,
+     215
+    ],
+    [
+     0,
+     296,
+     92,
+     16
+    ],
+    [
+     313,
+     294,
+     25,
+     20
+    ],
+    [
+     0,
+     100,
+     600,
+     52
+    ]
+   ],
+   "shelf": true
+  },
+  {
+   "id": "doghouse",
+   "label": "Doghouse",
+   "kind": "doghouse",
+   "sheet": "dog",
+   "rect": [
+    360,
+    196,
+    192,
+    162
+   ],
+   "mode": "dark",
+   "thr": 55,
+   "poly": [
+    [
+     364,
+     284
+    ],
+    [
+     420,
+     201
+    ],
+    [
+     486,
+     204
+    ],
+    [
+     546,
+     284
+    ],
+    [
+     520,
+     355
+    ],
+    [
+     384,
+     355
+    ]
+   ],
+   "drop": [
+    [
+     360,
+     297,
+     28,
+     18
+    ],
+    [
+     514,
+     297,
+     40,
+     18
+    ]
+   ]
+  },
+  {
+   "id": "whale",
+   "label": "Whale",
+   "kind": "whale",
+   "sheet": "whale",
+   "rect": [
+    10,
+    150,
+    325,
+    260
+   ],
+   "face": "R",
+   "shelf": true
+  },
+  {
+   "id": "bird-yellow",
+   "label": "Yellow bird",
+   "kind": "bird",
+   "sheet": "bird",
+   "rect": [
+    85,
+    50,
+    350,
+    460
+   ],
+   "face": "R",
+   "shelf": true
+  },
+  {
+   "id": "buddy",
+   "label": "Buddy",
+   "kind": "person",
+   "sheet": "buddy",
+   "rect": [
+    60,
+    0,
+    660,
+    730
+   ],
+   "mode": "dark",
+   "thr": 70,
+   "max": 460,
+   "drop": [
+    [
+     548,
+     440,
+     190,
+     175
+    ],
+    [
+     0,
+     420,
+     70,
+     200
+    ]
+   ]
+  },
+  {
+   "id": "ship",
+   "label": "Big ship",
+   "kind": "ship",
+   "sheet": "ship",
+   "rect": [
+    155,
+    185,
+    880,
+    590
+   ],
+   "mode": "dark",
+   "thr": 60,
+   "face": "F",
+   "drop": [
+    [
+     140,
+     150,
+     900,
+     54
+    ],
+    [
+     140,
+     742,
+     108,
+     40
+    ],
+    [
+     956,
+     742,
+     90,
+     40
+    ]
+   ]
+  },
+  {
+   "id": "seagull",
+   "label": "Seagull",
+   "kind": "bird",
+   "sheet": "ship",
+   "rect": [
+    60,
+    80,
+    280,
+    155
+   ],
+   "mode": "dark",
+   "thr": 60,
+   "face": "R"
+  },
+  {
+   "id": "chameleon",
+   "label": "Chameleon",
+   "kind": "chameleon",
+   "sheet": "chameleon",
+   "rect": [
+    96,
+    190,
+    800,
+    610
+   ],
+   "mode": "dark",
+   "thr": 70,
+   "face": "R",
+   "drop": [
+    [
+     205,
+     478,
+     148,
+     85
+    ],
+    [
+     455,
+     478,
+     143,
+     85
+    ],
+    [
+     690,
+     478,
+     200,
+     85
+    ],
+    [
+     96,
+     470,
+     28,
+     120
+    ]
+   ],
+   "shelf": true
+  },
+  {
+   "id": "cottage",
+   "label": "Cottage",
+   "kind": "house",
+   "sheet": "house",
+   "rect": [
+    110,
+    190,
+    369,
+    352
+   ],
+   "mode": "poly",
+   "poly": [
+    [
+     113,
+     331
+    ],
+    [
+     165,
+     309
+    ],
+    [
+     188,
+     281
+    ],
+    [
+     212,
+     259
+    ],
+    [
+     226,
+     238
+    ],
+    [
+     238,
+     226
+    ],
+    [
+     254,
+     208
+    ],
+    [
+     330,
+     201
+    ],
+    [
+     479,
+     194
+    ],
+    [
+     479,
+     541
+    ],
+    [
+     112,
+     526
+    ],
+    [
+     112,
+     474
+    ],
+    [
+     164,
+     457
+    ],
+    [
+     164,
+     338
+    ]
+   ],
+   "max": 460
+  },
+  {
+   "id": "mushroom",
+   "label": "Mushroom",
+   "kind": "mushroom",
+   "sheet": "mushroom",
+   "rect": [
+    0,
+    0,
+    640,
+    640
+   ],
+   "shelf": true
+  },
+  {
+   "id": "toadstool",
+   "label": "Toadstool",
+   "kind": "mushroom",
+   "sheet": "toadstool",
+   "rect": [
+    0,
+    0,
+    640,
+    640
+   ]
+  },
+  {
+   "id": "rock",
+   "label": "Rock",
+   "kind": "rock",
+   "sheet": "rock",
+   "rect": [
+    0,
+    0,
+    640,
+    534
+   ]
+  },
+  {
+   "id": "boulder",
+   "label": "Mossy rock",
+   "kind": "rock",
+   "sheet": "boulder",
+   "rect": [
+    0,
+    0,
+    640,
+    534
+   ]
+  },
+  {
+   "id": "lilypad",
+   "label": "Lily pad",
+   "kind": "lilypad",
+   "sheet": "lilypad",
+   "rect": [
+    0,
+    0,
+    640,
+    640
+   ]
+  },
+  {
+   "id": "reeds",
+   "label": "Reeds",
+   "kind": "reeds",
+   "sheet": "reeds",
+   "rect": [
+    0,
+    0,
+    560,
+    784
+   ]
+  },
+  {
+   "id": "fish-orange",
+   "label": "Orange fish",
+   "kind": "fish",
+   "sheet": "fish-orange",
+   "rect": [
+    0,
+    0,
+    640,
+    480
+   ],
+   "face": "L"
+  },
+  {
+   "id": "fish-green",
+   "label": "Green fish",
+   "kind": "fish",
+   "sheet": "fish-green",
+   "rect": [
+    0,
+    0,
+    640,
+    400
+   ],
+   "face": "L"
+  },
+  {
+   "id": "rainbow-a",
+   "label": "Rainbow",
+   "kind": "rainbow",
+   "sheet": "flat",
+   "rect": [
+    158,
+    176,
+    452,
+    397
+   ],
+   "shrink": 0.8,
+   "close": 10,
+   "parts": "all",
+   "drop": []
+  },
+  {
+   "id": "rainbow-b",
+   "label": "Rainbow",
+   "kind": "rainbow",
+   "sheet": "flat",
+   "rect": [
+    3338,
+    1059,
+    319,
+    432
+   ],
+   "shrink": 0.8,
+   "close": 10,
+   "parts": "all",
+   "drop": [
+    [
+     3300,
+     1355,
+     50,
+     140
+    ]
+   ]
+  },
+  {
+   "id": "rainbow-c",
+   "label": "Rainbow",
+   "kind": "rainbow",
+   "sheet": "flat",
+   "rect": [
+    4028,
+    760,
+    243,
+    228
+   ],
+   "shrink": 0.8,
+   "close": 10,
+   "parts": "all",
+   "drop": []
+  },
+  {
+   "id": "rainbow-d",
+   "label": "Rainbow",
+   "kind": "rainbow",
+   "sheet": "flat",
+   "rect": [
+    2407,
+    1566,
+    494,
+    344
+   ],
+   "shrink": 0.8,
+   "close": 10,
+   "parts": "all",
+   "drop": []
+  },
+  {
+   "id": "rainbow-e",
+   "label": "Rainbow",
+   "kind": "rainbow",
+   "sheet": "flat",
+   "rect": [
+    1114,
+    1513,
+    344,
+    221
+   ],
+   "shrink": 0.8,
+   "close": 10,
+   "parts": "all",
+   "drop": []
+  },
+  {
+   "id": "rainbow-f",
+   "label": "Rainbow",
+   "kind": "rainbow",
+   "sheet": "flat",
+   "rect": [
+    2597,
+    2316,
+    356,
+    284
+   ],
+   "shrink": 0.8,
+   "close": 10,
+   "parts": "all",
+   "drop": []
+  },
+  {
+   "id": "tree-round",
+   "label": "Round tree",
+   "kind": "tree",
+   "sheet": "flat",
+   "rect": [
+    489,
+    1262,
+    294,
+    397
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "pine-teal",
+   "label": "Pine tree",
+   "kind": "pine",
+   "sheet": "flat",
+   "rect": [
+    2974,
+    959,
+    291,
+    479
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "tree-leafy",
+   "label": "Leafy tree",
+   "kind": "tree",
+   "sheet": "flat",
+   "rect": [
+    5130,
+    1242,
+    258,
+    334
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "tulip-red",
+   "label": "Tulip",
+   "kind": "flower",
+   "sheet": "flat",
+   "rect": [
+    831,
+    1375,
+    279,
+    637
+   ],
+   "shrink": 0.8,
+   "size": 1.2
+  },
+  {
+   "id": "flower-orange-stalk",
+   "label": "Orange flower",
+   "kind": "flower",
+   "sheet": "flat",
+   "rect": [
+    208,
+    670,
+    309,
+    735
+   ],
+   "shrink": 0.8,
+   "size": 1.3
+  },
+  {
+   "id": "flower-teal-red",
+   "label": "Red flower",
+   "kind": "flower",
+   "sheet": "flat",
+   "rect": [
+    2244,
+    1988,
+    371,
+    497
+   ],
+   "shrink": 0.8,
+   "size": 1.1
+  },
+  {
+   "id": "flower-coral-stem",
+   "label": "Coral flower",
+   "kind": "flower",
+   "sheet": "flat",
+   "rect": [
+    5002,
+    248,
+    339,
+    394
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "flower-pink-stem",
+   "label": "Pink flower",
+   "kind": "flower",
+   "sheet": "flat",
+   "rect": [
+    2733,
+    740,
+    208,
+    419
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "flower-teal",
+   "label": "Teal flower",
+   "kind": "flower",
+   "sheet": "flat",
+   "rect": [
+    1624,
+    1639,
+    191,
+    281
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "flower-coral-big",
+   "label": "Big flower",
+   "kind": "flower",
+   "sheet": "flat",
+   "rect": [
+    4821,
+    2048,
+    354,
+    439
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "sunflower",
+   "label": "Sunflower",
+   "kind": "sunflower",
+   "sheet": "flat",
+   "rect": [
+    2981,
+    658,
+    211,
+    261
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "blob-orange",
+   "label": "Flower",
+   "kind": "blossom",
+   "sheet": "flat",
+   "rect": [
+    4419,
+    236,
+    311,
+    351
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "blob-navy",
+   "label": "Flower",
+   "kind": "blossom",
+   "sheet": "flat",
+   "rect": [
+    1167,
+    690,
+    213,
+    221
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "blob-coral",
+   "label": "Flower",
+   "kind": "blossom",
+   "sheet": "flat",
+   "rect": [
+    1932,
+    1147,
+    173,
+    168
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "blob-pink",
+   "label": "Flower",
+   "kind": "blossom",
+   "sheet": "flat",
+   "rect": [
+    3521,
+    647,
+    211,
+    211
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "blob-red",
+   "label": "Flower",
+   "kind": "blossom",
+   "sheet": "flat",
+   "rect": [
+    587,
+    2080,
+    291,
+    311
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "yellow-bud",
+   "label": "Yellow flower",
+   "kind": "flower",
+   "sheet": "flat",
+   "rect": [
+    5215,
+    730,
+    168,
+    211
+   ],
+   "shrink": 0.8,
+   "size": 0.8
+  },
+  {
+   "id": "grass-a",
+   "label": "Grass",
+   "kind": "grass",
+   "sheet": "flat",
+   "rect": [
+    1445,
+    715,
+    141,
+    136
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "grass-b",
+   "label": "Grass",
+   "kind": "grass",
+   "sheet": "flat",
+   "rect": [
+    4055,
+    309,
+    176,
+    143
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "grass-c",
+   "label": "Grass",
+   "kind": "grass",
+   "sheet": "flat",
+   "rect": [
+    999,
+    2331,
+    141,
+    168
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "grass-d",
+   "label": "Grass",
+   "kind": "grass",
+   "sheet": "flat",
+   "rect": [
+    5212,
+    2176,
+    163,
+    120
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "fern-a",
+   "label": "Fern",
+   "kind": "fern",
+   "sheet": "flat",
+   "rect": [
+    4362,
+    1599,
+    258,
+    397
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "fern-b",
+   "label": "Fern",
+   "kind": "fern",
+   "sheet": "flat",
+   "rect": [
+    2961,
+    2181,
+    201,
+    324
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "fern-c",
+   "label": "Fern",
+   "kind": "fern",
+   "sheet": "flat",
+   "rect": [
+    4467,
+    2241,
+    264,
+    286
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "elephant-blue",
+   "label": "Elephant",
+   "kind": "elephant",
+   "sheet": "flat",
+   "rect": [
+    770,
+    203,
+    670,
+    472
+   ],
+   "face": "R",
+   "shrink": 0.8
+  },
+  {
+   "id": "elephant-teal",
+   "label": "Elephant",
+   "kind": "elephant",
+   "sheet": "flat",
+   "rect": [
+    2883,
+    1584,
+    728,
+    540
+   ],
+   "face": "L",
+   "shrink": 0.8,
+   "shelf": true
+  },
+  {
+   "id": "giraffe",
+   "label": "Giraffe",
+   "kind": "giraffe",
+   "sheet": "flat",
+   "rect": [
+    3792,
+    1506,
+    715,
+    1026
+   ],
+   "face": "L",
+   "shrink": 0.8
+  },
+  {
+   "id": "unicorn",
+   "label": "Unicorn",
+   "kind": "unicorn",
+   "sheet": "flat",
+   "rect": [
+    1222,
+    1779,
+    871,
+    655
+   ],
+   "face": "R",
+   "shrink": 0.8,
+   "shelf": true
+  },
+  {
+   "id": "leopard",
+   "label": "Leopard",
+   "kind": "leopard",
+   "sheet": "flat",
+   "rect": [
+    2218,
+    886,
+    439,
+    625
+   ],
+   "face": "F",
+   "shrink": 0.8
+  },
+  {
+   "id": "watermelon",
+   "label": "Watermelon",
+   "kind": "fruit",
+   "sheet": "flat",
+   "rect": [
+    3995,
+    512,
+    399,
+    201
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "lemon",
+   "label": "Lemon",
+   "kind": "fruit",
+   "sheet": "flat",
+   "rect": [
+    3212,
+    2249,
+    238,
+    404
+   ],
+   "shrink": 0.8
+  },
+  {
+   "id": "apple-red",
+   "label": "Apple",
+   "kind": "fruit",
+   "sheet": "flat",
+   "rect": [
+    1250,
+    916,
+    238,
+    316
+   ],
+   "shrink": 0.8
+  }
+ ]
+}
