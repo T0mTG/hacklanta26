@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { PCFShadowMap, Vector2, Vector3, type DirectionalLight } from 'three'
+import { Color, PCFShadowMap, Vector2, Vector3, type DirectionalLight } from 'three'
 import { LITE } from '../lib/env'
 import { player } from '../entities/playerState'
 import PaperContent from '../paper/PaperContent'
@@ -111,8 +111,13 @@ function DevHooks() {
       const aspect = cam.aspect
       gl.setPixelRatio(1); gl.setSize(width, height, false)
       cam.aspect = width / height; cam.updateProjectionMatrix()
+      // the sky is CSS behind a transparent canvas, so paint it into the shot
+      const prev = new Color(), prevA = gl.getClearAlpha()
+      gl.getClearColor(prev)
+      gl.setClearColor(getComputedStyle(document.documentElement).getPropertyValue('--sky-b').trim() || '#8fd3c9', 1)
       gl.render(scene, camera)
       const blob = await new Promise<Blob>((res) => gl.domElement.toBlob((b) => res(b!), 'image/jpeg', 0.9))
+      gl.setClearColor(prev, prevA)
       gl.setPixelRatio(ratio); gl.setSize(size.x, size.y, false)
       cam.aspect = aspect; cam.updateProjectionMatrix()
       const r = await fetch(`http://127.0.0.1:8800/save?name=${name}.jpg`, { method: 'POST', body: blob })

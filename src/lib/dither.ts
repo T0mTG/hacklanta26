@@ -11,27 +11,30 @@ float bayer4(vec2 p) {
   return (m[x + y * 4] + 0.5) / 16.0;
 }`
 
+// The patch itself, so a material with its own shader changes (the paper cards) can apply it in the same onBeforeCompile
+export function patchDither(shader: WebGLProgramParametersWithUniforms) {
+  shader.uniforms.uDTarget = ditherU.uDTarget
+  shader.uniforms.uDOn = ditherU.uDOn
+  shader.vertexShader = shader.vertexShader
+    .replace('#include <common>', '#include <common>\nuniform vec3 uDTarget;\nuniform float uDOn;\nvarying float vDither;')
+    .replace(
+      '#include <project_vertex>',
+      `#include <project_vertex>
+      {
+        // distance of this vertex from the camera-to-kid line, in view space (the camera sits at the origin there)
+        vec3 tv = (viewMatrix * vec4(uDTarget, 1.0)).xyz;
+        float tt = dot(mvPosition.xyz, tv) / max(dot(tv, tv), 1e-4);
+        float dd = length(mvPosition.xyz - tv * tt);
+        float rr = 0.55 + 1.25 * tt;
+        vDither = uDOn * step(0.03, tt) * step(tt, 0.96) * (1.0 - smoothstep(rr * 0.5, rr, dd));
+      }`,
+    )
+  shader.fragmentShader = shader.fragmentShader
+    .replace('#include <common>', `#include <common>\nvarying float vDither;\n${BAYER}`)
+    .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\n  if (vDither > 0.01 && bayer4(gl_FragCoord.xy) < vDither * 0.92) discard;')
+}
+
 export function withDither<T extends Material>(mat: T): T {
-  mat.onBeforeCompile = (shader: WebGLProgramParametersWithUniforms) => {
-    shader.uniforms.uDTarget = ditherU.uDTarget
-    shader.uniforms.uDOn = ditherU.uDOn
-    shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nuniform vec3 uDTarget;\nuniform float uDOn;\nvarying float vDither;')
-      .replace(
-        '#include <project_vertex>',
-        `#include <project_vertex>
-        {
-          // distance of this vertex from the camera-to-kid line, in view space (the camera sits at the origin there)
-          vec3 tv = (viewMatrix * vec4(uDTarget, 1.0)).xyz;
-          float tt = dot(mvPosition.xyz, tv) / max(dot(tv, tv), 1e-4);
-          float dd = length(mvPosition.xyz - tv * tt);
-          float rr = 0.55 + 1.25 * tt;
-          vDither = uDOn * step(0.03, tt) * step(tt, 0.96) * (1.0 - smoothstep(rr * 0.5, rr, dd));
-        }`,
-      )
-    shader.fragmentShader = shader.fragmentShader
-      .replace('#include <common>', `#include <common>\nvarying float vDither;\n${BAYER}`)
-      .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\n  if (vDither > 0.01 && bayer4(gl_FragCoord.xy) < vDither * 0.92) discard;')
-  }
+  mat.onBeforeCompile = patchDither
   return mat
 }

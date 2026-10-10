@@ -74,7 +74,7 @@ scripts/                  one-off asset tooling (its own package.json, sharp)
 - **World variant switch.** `useStore().globe` is `'toy' | 'paper'`. The landing screen shows two big sticker buttons; picking one swaps the content behind the title live. `?globe=paper` opens it directly; the last choice is remembered. `collide.ts` takes its solid obstacles from whichever globe is mounted (`staticObstacles`).
 - **Saved data per globe.** Toy: `doodle-planet:v1` (unchanged). Paper: `doodle-planet:paper:v1`, holding only what the kid changed (elements they added, elements they carried somewhere new), because everything the world starts with has a stable id.
 - **The library** (`src/paper/library.gen.ts`, written by the cut-out script) is a data table. Each entry is `{ id, label, kind, shape, behavior, size, ... }` plus the texture size, the cut-out outline and a few colors. `shape` is `plant | building | card`, `behavior` is `static | walker2 | walker4 | bird | insect | fish | floater`. A kind table supplies the defaults, so a new kind is one line.
-- **A card** is a thin double-sided paper mesh: a grid for each face (so the vertex shader can bend it), a ribbon along the cut-out outline for the paper edge, and optional cardboard base. Front: the drawing. Back: the mirrored drawing, or a plain colored paper back for front-view people. Edge: cream paper. The alpha cut-out outline comes from the script, and shadows follow it (alpha-tested depth).
+- **A card** is a thin double-sided paper mesh: one grid for the face (so the vertex shader can bend it, drawn on both sides, so the back is the drawing seen from behind, which is what turning around looks like), a ribbon of cream paper edge along the cut-out outline (at most 44 points, so a card seen from the side has real thickness), and a few vertex-colored parts (cardboard base, house roof and corner posts). The back of a person is plain colored paper instead of a mirrored face. The outline comes from the script, and shadows follow it (alpha-tested depth with the same bending).
 - **Plants** are 2 (or 3) crossed cards plus a base. **Buildings** are 4 cards forming a box plus a folded roof and corner posts. **Walkers, birds, insects, fish, floaters** are single cards with their own motion.
 - **Instancing.** One `InstancedMesh` per cut-out (about 80), sharing one shader. Sway, curl, wing fold and fish bend are vertex shader math driven by a per-instance phase, so 300+ cut-outs stay cheap. `?lite` halves the counts and drops shadows.
 - **Behaviors** are small state machines on the sphere (`dir` + `fwd`), using the terrain helpers: stay on land (or in water for fish), avoid steep slopes, never get stuck, look at the kid when they come close.
@@ -86,7 +86,7 @@ scripts/                  one-off asset tooling (its own package.json, sharp)
 |---|---|---|
 | **0** Plan and skeleton | this file, the world-variant switch, the landing choice, paper palette | the Paper Globe shows terrain and clouds; the Toy Globe behaves as before |
 | **1** Assets | cut-out script, `public/paper/*.webp`, library, debug sheet | every cut-out checked by eye; no halos; each has `{ id, label, kind, shape, behavior, size }` |
-| **2** Paper statics | crossed-card plants, 4-card buildings, outline + paper edge + shadows + sway; the world filled by region | free space measured; 300 cut-outs run smoothly |
+| **2** Paper statics | crossed-card plants, 4-card buildings, outline + paper edge + shadows + sway; the world filled by region | free space measured (`__paperCapacity()`); 700 cut-outs in 155 draw calls |
 | **3** Paper life | walker2, walker4, bird, insect, fish, floater with paper motion; the world populated | nothing gets stuck over a long simulated run |
 | **4** The demo | upload + demo shelf, fake AI reveal, spawn, drag, tap to view, save and restore, HUD, `?lite` | a kid can add a drawing and watch it come alive; verified (tsc, build, frames, fresh clone) |
 
@@ -95,7 +95,9 @@ scripts/                  one-off asset tooling (its own package.json, sharp)
 - **Live switch, not a reload.** One store, content swapped under the canvas; both terrains are cached so switching is instant after the first build.
 - **Own package for the image tooling.** `scripts/package.json` holds `sharp`, so the app's install stays lean. `npm run cutouts` installs it on demand and runs the script.
 - **Faces on a grid, edge from the outline.** Face geometry is a grid (so it can bend); the paper edge is a ribbon built from the simplified cut-out outline. No triangulation of arbitrary polygons, so no failure cases.
-- **Back faces.** Animals and plants show the mirrored drawing from behind. People (front views) show a plain paper back, so walking away from the camera does not make a face look back at you.
+- **Back faces.** One double-sided face per card. Animals and plants show their drawing from behind (a flip makes an animal face the other way, like turning a sheet of paper). People (front views) show a plain colored paper back, so walking away from the camera does not make a face look back at you. A mirror flip for variety is just a half turn.
+- **Hue shifts only touch green on trees**, so an apple tree can blossom pink while its trunk stays brown; flowers and fish shift every color.
+- **Picking is done by hand** (rays against a capsule per item) instead of raycasting the instanced meshes: 700 cut-outs are about 400k triangles, far too many to test on every pointer move.
 - **Orientation of walkers.** Front-view drawings (people) face the way they walk. Side-view drawings (animals) walk along their own length. When the kid comes close they turn face-on and hop.
 - **The player is a paper kid**, the same kind of card as everyone else, and the cat that follows them is a paper cat.
 - **Rocks, mushrooms, lily pads** are original crayon SVG doodles, since the picture sheets have none.
@@ -123,3 +125,9 @@ scripts/                  one-off asset tooling (its own package.json, sharp)
 6. writes `public/paper/<id>.webp`, `public/paper/raw/<id>.jpg` for shelf pictures, and `src/paper/library.gen.ts`.
 
 `node scripts/build-cutouts.mjs --contact <dir>` also writes contact sheets (every cut-out on grass) for checking by eye, and `?sheet` in the app shows the same library with the outline and the foot drawn on top. The whole run takes about 10 seconds.
+
+## 9. Phase 2 results
+
+- 742 static cut-outs (127 per region on average, the plaza and the ponds lighter, the woods and the meadow denser), in 155 draw calls and about 540k triangles per frame including the shadow pass (`?lite`: 427 cut-outs, 85 draw calls, 184k triangles). The CPU side of a frame is about 2 ms.
+- Free ground after the layout: 38 percent of the planet is open, and `__paperCapacity()` finds room for about 476 more things at 1.2 units apart (the Toy Globe had room for 73 easels at 3.2 units apart).
+- Hat tip to the reference: the crossed cards look like `ref-tree.png` from every side, the shadows follow the cut-out, and the card edges catch the light as thin cream lines.
