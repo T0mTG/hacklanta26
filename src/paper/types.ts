@@ -59,6 +59,7 @@ export interface PaperEntry extends CutoutSpec {
   radius: number
   perch: boolean
   aspect: number // w / h
-  url: string // the cut-out
+  url: string // the cut-out (for one the kid drew: a data URL)
   rawUrl?: string // the original picture, for the demo shelf
+  custom?: boolean // drawn by the kid on the whiteboard, so it lives in their saved data and not in the library
 }

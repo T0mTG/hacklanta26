@@ -3,12 +3,18 @@ import { motion } from 'framer-motion'
 import { player } from '../entities/playerState'
 import { tangentize } from '../lib/sphere'
 import { useStore } from '../store'
+import Icon from '../ui/Icon'
 import { Btn } from '../ui/kit'
 import { northAt } from '../world/place'
 import { SPAWN } from '../world/regions'
 import { faceGlobeTo, rig } from '../world/rig'
 import { extractElements, withArticle, type Element } from './ai'
+import { entryFromDrawing } from './custom'
+import { PICKS, classifyDrawing, needsFacing, type Guess } from './draw/classify'
+import type { DrawnCutout } from './draw/cutout'
+import { byKind } from './library'
 import { addElement, landingSpot } from './runtime'
+import type { Face } from './types'
 
 // The Paper Globe's "AI is looking at your drawing" screen. The AI is a stand-in (see ai.ts), but the show is real:
 // scanning lines and sparkles over the picture, scissors snipping along the outline of what it found, then "I found a tree!".
@@ -18,7 +24,7 @@ const SCAN_MS = 1700, SNIP_MS = 1900, AUTO_MS = 3400
 // dev only: window.__aiSlow = 4 plays the whole show four times slower, to look at the scissors
 const slow = () => (import.meta.env.DEV ? Number((window as unknown as { __aiSlow?: number }).__aiSlow) || 1 : 1)
 
-type Stage = 'scan' | 'snip' | 'found'
+type Stage = 'scan' | 'ask' | 'snip' | 'found'
 
 // where the cut-out's outline sits over the picture, in 0..1 picture coordinates (y down)
 function placeOutline(el: Element, imgAspect: number) {
@@ -87,6 +93,54 @@ function Stars({ colors }: { colors: string[] }) {
   )
 }
 
+// what the kid's drawing is, as an element of the planet
+const elementOf = (drawn: DrawnCutout, kind: string, label: string, face: Face, how: Guess['how']): Element => ({
+  entry: entryFromDrawing(drawn, { kind, label, face }), label, how,
+})
+
+// When nothing could say what the drawing is: big pictures to tap, then (for things seen from the side) which way it is looking
+function AskPanel({ drawn, onAnswer }: { drawn: DrawnCutout; onAnswer: (kind: string, label: string, face: Face) => void }) {
+  const [side, setSide] = useState<{ kind: string; label: string } | null>(null)
+  const pick = (p: { kind: string; label: string }) => {
+    const label = p.kind === 'thing' ? 'Surprise' : p.label
+    if (needsFacing(p.kind)) setSide({ kind: p.kind, label }); else onAnswer(p.kind, label, 'F')
+  }
+  if (side) {
+    return (
+      <>
+        <img src={drawn.cutUrl} alt="Your drawing" draggable={false} className="mx-auto max-h-44 max-w-[70%] object-contain" style={{ filter: 'drop-shadow(4px 6px 0 rgba(34,51,59,.28))' }} />
+        <h2 className="font-display text-3xl font-bold mt-3 leading-tight">Which way is it looking?</h2>
+        <div className="mt-4 flex items-center justify-center gap-5">
+          <Btn big tone="sky" aria-label="Looking left" onClick={() => onAnswer(side.kind, side.label, 'L')}><Icon name="left" size={38} /></Btn>
+          <Btn big tone="sky" aria-label="Looking right" onClick={() => onAnswer(side.kind, side.label, 'R')}><Icon name="right" size={38} /></Btn>
+        </div>
+        <div className="mt-3 flex justify-center"><Btn icon="back" onClick={() => setSide(null)}>Back</Btn></div>
+      </>
+    )
+  }
+  return (
+    <>
+      <div className="flex items-center justify-center gap-3">
+        <div className="polaroid shrink-0" style={{ transform: 'rotate(-3deg)', width: '5.5rem' }}>
+          <img src={drawn.picture} alt="Your drawing" draggable={false} className="block w-full bg-white object-contain" style={{ aspectRatio: drawn.pictureSize[0] / drawn.pictureSize[1] }} />
+        </div>
+        <h2 className="font-display text-3xl font-bold leading-tight text-left">What did you draw?</h2>
+      </div>
+      <div className="mt-4 grid grid-cols-3 sm:grid-cols-4 gap-2">
+        {PICKS.map((p) => {
+          const icon = byKind(p.kind)[0]?.url
+          return (
+            <button key={p.kind} className="sticker-btn hit !flex-col !gap-1 !p-1.5 !min-h-0 aspect-square" onClick={() => pick(p)}>
+              {icon ? <img src={icon} alt="" draggable={false} className="h-[68%] w-full object-contain" /> : <Icon name="star" size={34} />}
+              <span className="text-[0.7rem] font-bold leading-none">{p.label}</span>
+            </button>
+          )
+        })}
+      </div>
+    </>
+  )
+}
+
 export default function PaperProcessing() {
   const pending = useStore((s) => s.paperPending)
   const [stage, setStage] = useState<Stage>('scan')
@@ -95,18 +149,46 @@ export default function PaperProcessing() {
   const [p, setP] = useState(0) // how far the scissors have got around the outline
   const done = useRef(false)
 
+  const [scanDone, setScanDone] = useState(false)
+  const [asking, setAsking] = useState(false) // the AI could not say what a drawing is: the kid is asked
+
   // the "AI" starts looking as soon as the screen opens
   useEffect(() => {
     if (!pending) return
     let alive = true
-    extractElements({ src: pending.src, name: pending.name, entryId: pending.entryId }).then((r) => { if (alive && r[0]) setFound(r[0]) })
+    const drawn = pending.drawn
+    if (drawn) {
+      // a drawing from the whiteboard is already cut out; the only question is what it is
+      classifyDrawing(drawn.picture).then((g) => {
+        if (!alive) return
+        if (g) setFound(elementOf(drawn, g.kind, g.name, g.face, g.how)); else setAsking(true)
+      })
+    } else {
+      extractElements({ src: pending.src, name: pending.name, entryId: pending.entryId }).then((r) => { if (alive && r[0]) setFound(r[0]) })
+    }
     return () => { alive = false }
   }, [pending])
 
   useEffect(() => {
-    const id = window.setTimeout(() => setStage((s) => (s === 'scan' ? 'snip' : s)), SCAN_MS * slow())
+    const id = window.setTimeout(() => setScanDone(true), SCAN_MS * slow())
     return () => window.clearTimeout(id)
   }, [])
+
+  // the scan is over and the answer is in (or has to come from the kid)
+  useEffect(() => {
+    if (stage !== 'scan' || !scanDone) return
+    if (found) setStage('snip')
+    else if (asking) setStage('ask')
+  }, [stage, scanDone, found, asking])
+
+  const answer = (kind: string, label: string, face: Face) => {
+    if (!pending?.drawn) return
+    setFound(elementOf(pending.drawn, kind, label, face, 'asked'))
+    setAsking(false)
+    setP(0)
+    setStage('snip')
+  }
+  const notRight = () => { setFound(null); setAsking(true); setP(0); setStage('ask') }
 
   // the snipping: runs once a result is in and the scan is over
   useEffect(() => {
@@ -149,7 +231,7 @@ export default function PaperProcessing() {
   // after the reveal it carries on by itself (a tap does it sooner)
   useEffect(() => {
     if (stage !== 'found') return
-    const id = window.setTimeout(finish, AUTO_MS)
+    const id = window.setTimeout(finish, (pending?.drawn ? AUTO_MS * 2.5 : AUTO_MS) * slow())
     return () => window.clearTimeout(id)
   }) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -161,6 +243,20 @@ export default function PaperProcessing() {
 
   const heading = stage === 'scan' ? 'Looking at your drawing...' : stage === 'snip' ? 'Snip snip snip!' : found ? `I found ${withArticle(found.label)}!` : ''
   const revealed = stage === 'found' && found
+
+  if (stage === 'ask' && pending?.drawn) {
+    return (
+      <motion.div className="absolute inset-0 grid place-items-center p-3 hit" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        <motion.div
+          className="sticker w-full max-w-lg max-h-[calc(100dvh-1.5rem)] overflow-y-auto p-4 sm:p-6 text-center"
+          initial={{ scale: 0.92, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+        >
+          <AskPanel drawn={pending.drawn} onAnswer={answer} />
+        </motion.div>
+      </motion.div>
+    )
+  }
 
   return (
     <motion.div className="absolute inset-0 grid place-items-center p-4 hit" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { if (stage === 'found') finish() }}>
@@ -217,8 +313,9 @@ export default function PaperProcessing() {
         </motion.h2>
         {stage === 'scan' && <p className="mt-1 text-lg opacity-80">Hmm, what could it be?</p>}
         {revealed && (
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex flex-col items-center gap-3">
             <Btn big tone="yellow" icon="check" onClick={(e) => { e.stopPropagation(); finish() }}>Put it on the planet!</Btn>
+            {pending?.drawn && <Btn icon="back" onClick={(e) => { e.stopPropagation(); notRight() }}>Not right?</Btn>}
           </div>
         )}
       </motion.div>

@@ -6,7 +6,7 @@ import type { PaperEntry } from './types'
 // What can be tapped, looked at and carried: everything with a character of its own. Tufts of grass, ferns and lily pads are
 // scenery, so they are left out (they would only ever be "the nearest thing" by accident).
 const SCENERY = new Set(['grass', 'fern', 'lilypad', 'reeds'])
-export const tappable = (e: PaperEntry) => !SCENERY.has(e.kind)
+export const tappable = (e: PaperEntry) => !!e.custom || !SCENERY.has(e.kind) // the kid's own drawing is never scenery, whatever it was called
 
 // The nearest thing the kid could look at, within a few steps. Bigger things are noticed from a little farther away.
 export function nearestPaperItem(): string | null {

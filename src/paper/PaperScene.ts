@@ -19,6 +19,9 @@ export class PaperScene {
 
   constructor(private textures: Map<string, Texture>) {}
 
+  // a drawing the kid made is not in the library the scene was built with: give the scene its picture before it adds one
+  addTexture(id: string, tex: Texture) { this.textures.set(id, tex) }
+
   // How many copies of each cut-out are about to be added, so each batch is made once at about the right size
   private counts = new Map<string, number>()
   expect(items: PaperItem[]) {

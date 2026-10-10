@@ -21,7 +21,7 @@ export interface AiImage {
 export interface Element {
   entry: PaperEntry
   label: string // "Cat"
-  how: 'shelf' | 'name' | 'guess' // how it was found (for the curious)
+  how: 'shelf' | 'name' | 'guess' | 'gemini' | 'asked' // how it was found (for the curious); the last two are for drawings from the whiteboard
 }
 
 // Words in a file name -> the kinds they mean. Checked in order; a word matches anywhere in the name.

@@ -23,6 +23,7 @@ export const KINDS: Record<string, KindSpec> = {
   fruit: plant(0.6, { radius: 0.1 }),
   starfish: plant(0.6, { radius: 0.1 }),
   rainbow: plant(3.4, { radius: 0.2 }),
+  thing: plant(1.3, { radius: 0.25 }), // anything a kid draws that fits nowhere else: it stands there like a paper statue
 
   // ---- buildings (four cards and a roof)
   house: { shape: 'building', behavior: 'static', size: 3.0, back: 'mirror', radius: 1.5 },

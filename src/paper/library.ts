@@ -23,6 +23,8 @@ export const LIBRARY: PaperEntry[] = CUTOUTS.map((c) => {
 })
 
 export const BY_ID = new Map(LIBRARY.map((e) => [e.id, e]))
+// a drawing the kid made joins the lookup (it is not in LIBRARY, which is only what ships with the app)
+export const registerEntry = (e: PaperEntry) => { BY_ID.set(e.id, e) }
 export const entryOf = (id: string) => BY_ID.get(id)
 
 // the pictures a kid can pick from the demo shelf (each one is a drawing of ONE element)

@@ -22,6 +22,9 @@ const PATHS: Record<string, ReactNode> = {
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
   walk: <><circle cx="13" cy="5" r="2" /><path d="M10 20l2-6-3-2 2-5 3 2 3 1M13 14l3 2 1 4" /></>,
   list: <path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />,
+  eraser: <><path d="M4.5 15.2l8.7-8.7a2 2 0 0 1 2.8 0l2.5 2.5a2 2 0 0 1 0 2.8L11 19.5H7.2z" /><path d="M9.4 10.3l5.3 5.3M11 19.5h9" /></>,
+  undo: <path d="M9 5L4 10l5 5M4 10h9.5a5.5 5.5 0 0 1 0 11H10" />,
+  brush: <><path d="M18.5 4.5a2.1 2.1 0 0 1 0 3L11 15l-3-3 7.5-7.5a2.1 2.1 0 0 1 3 0z" /><path d="M8 12.5C5.5 12.5 4.5 14 4.5 16c0 1.6-.8 2.7-1.5 3.3 3.2.6 7-.3 7-3.3" /></>,
 }
 
 export default function Icon({ name, size = 24, className = '' }: { name: keyof typeof PATHS | string; size?: number; className?: string }) {

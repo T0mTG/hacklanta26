@@ -8,6 +8,7 @@ import { SPAWN } from '../world/regions'
 import { useStore } from '../store'
 import type { PaperAdded } from '../data/types'
 import type { Element } from './ai'
+import { prepareEntry, saveOfEntry } from './custom'
 import { newItem, paperItems, type PaperItem } from './items'
 import { BY_ID } from './library'
 import { paperClock } from './paperMaterial'
@@ -37,15 +38,22 @@ export function addElement(found: Element, o: { picture?: string; near: Vector3;
   whenPaperReady(() => {
     const scene = paperRuntime.scene!
     const e = found.entry
-    const scale = 1.05
-    const radius = e.radius * scale
-    const dir = findPaperSpot(o.near, radius, { avoid: [player.dir], avoidGap: 0.1 }) ?? o.near.clone()
-    const uid = `add-${makeId()}`
-    const it = newItem(uid, e, dir, { source: 'added', label: found.label, picture: o.picture, scale, seed: Math.random(), yaw: yawToward(dir, o.face) })
-    it.life = new DropLife(scene, o.delay)
-    registerObstacle(it)
-    scene.add(it, paperClock.value + o.delay)
-    useStore.getState().paperAdd({ uid, entry: e.id, name: found.label, src: o.picture, at: Date.now(), dir: dir.toArray(), yaw: it.yaw, scale, flip: false })
+    const put = () => {
+      const scale = e.custom ? 1.3 : 1.05 // the kid's own drawing stands a little bigger than the library's, so it is easy to spot
+      const radius = e.radius * scale
+      const dir = findPaperSpot(o.near, radius, { avoid: [player.dir], avoidGap: 0.1 }) ?? o.near.clone()
+      const uid = `add-${makeId()}`
+      const it = newItem(uid, e, dir, { source: 'added', label: found.label, picture: o.picture, scale, seed: Math.random(), yaw: yawToward(dir, o.face) })
+      it.life = new DropLife(scene, o.delay)
+      registerObstacle(it)
+      scene.add(it, paperClock.value + o.delay)
+      useStore.getState().paperAdd({
+        uid, entry: e.id, custom: e.custom ? saveOfEntry(e) : undefined, name: found.label, src: o.picture, at: Date.now(), dir: dir.toArray(), yaw: it.yaw, scale, flip: false,
+      })
+    }
+    // a drawing the kid made is not in the library: the scene needs its picture first
+    if (e.custom) void prepareEntry(e, scene).then(put)
+    else put()
   })
 }
 

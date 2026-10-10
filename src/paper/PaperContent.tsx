@@ -7,7 +7,8 @@ import { dynamicObstacles, staticObstacles } from '../world/collide'
 import { getPlan } from './layout'
 import { paperHealth } from './health'
 import { paperItems } from './items'
-import { BY_ID, LIBRARY } from './library'
+import { entryFromSave } from './custom'
+import { BY_ID, LIBRARY, registerEntry } from './library'
 import { paperClock } from './paperMaterial'
 import { spawnPopulation } from './population'
 import { addElement, landingSpot, restoreAdded, setPaperScene } from './runtime'
@@ -32,15 +33,18 @@ export default function PaperContent() {
   // load the pictures the planet uses, then build it
   useEffect(() => {
     let alive = true
+    // what the kid drew on an earlier visit is not in the library: stand those entries up from their saved data first
+    const mine = useStore.getState().paper.added.filter((a) => a.custom).map((a) => entryFromSave(a.entry, a.custom!))
+    for (const e of mine) registerEntry(e)
     // every cut-out: the world's statics and every creature (and whatever the kid adds later)
-    loadCutouts(LIBRARY).then(() => { if (alive) setReady(true) })
+    loadCutouts([...LIBRARY, ...mine]).then(() => { if (alive) setReady(true) })
     return () => { alive = false }
   }, [plan])
 
   const scene = useMemo(() => {
     if (!ready) return null
     const textures = new Map<string, Texture>()
-    for (const e of LIBRARY) { const t = loadedCutout(e.id); if (t) textures.set(e.id, t) }
+    for (const e of BY_ID.values()) { const t = loadedCutout(e.id); if (t) textures.set(e.id, t) }
     const s = new PaperScene(textures)
     s.expect(plan.items)
     const t0 = performance.now()

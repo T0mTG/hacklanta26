@@ -176,3 +176,10 @@ input, textarea { font: inherit; color: inherit; user-select: text; }
 .scissor-bottom { transform-origin: 12px 18px; animation: snip-bottom .22s ease-in-out infinite alternate; }
 @keyframes snip-top { from { transform: rotate(-4deg); } to { transform: rotate(13deg); } }
 @keyframes snip-bottom { from { transform: rotate(4deg); } to { transform: rotate(-13deg); } }
+
+/* ---------- the whiteboard on the paper globe's upload screen ---------- */
+.draw-board { background: #fff; border: 3px solid var(--ink); border-radius: 16px; box-shadow: 4px 4px 0 var(--ink); aspect-ratio: 4 / 3; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+.draw-board canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+.swatch-btn { width: 42px; height: 42px; border-radius: 999px; border: 3px solid var(--ink); box-shadow: 2px 3px 0 var(--ink); cursor: pointer; touch-action: manipulation; transition: transform .08s ease; }
+.swatch-btn:hover { transform: translateY(-2px); }
+.swatch-btn.on { transform: scale(1.16); outline: 3px solid var(--ink); outline-offset: 2px; }

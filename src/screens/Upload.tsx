@@ -4,8 +4,10 @@ import { useStore } from '../store'
 import { SAMPLES, sampleUrl, type Sample } from '../data/samples'
 import { buildArtwork, checkFile, processBlob, processUrl, titleFromName } from '../lib/artwork'
 import { clamp } from '../lib/rng'
+import DrawBoard from '../paper/draw/DrawBoard'
 import { SHELF } from '../paper/library'
 import type { PaperEntry } from '../paper/types'
+import type { PaperPending } from '../data/types'
 import Icon from '../ui/Icon'
 import { Btn, IconBtn } from '../ui/kit'
 
@@ -22,6 +24,7 @@ export default function Upload() {
   const setMyName = useStore((s) => s.setMyName)
 
   const [draft, setDraft] = useState<Draft | null>(null)
+  const [drawing, setDrawing] = useState(false) // the whiteboard (Paper Globe)
   const [title, setTitle] = useState('')
   const [artist, setArtist] = useState(myName)
   const [story, setStory] = useState('')
@@ -58,7 +61,7 @@ export default function Upload() {
     }
   }
 
-  const goPaper = (p: { src: string; picture?: string; name?: string; entryId?: string }) => {
+  const goPaper = (p: PaperPending) => {
     stagePaper(p)
     setOverlay('processing')
   }
@@ -79,15 +82,15 @@ export default function Upload() {
   }
 
   // Esc steps back; D picks a surprise drawing and goes straight to the planet
-  const latest = useRef({ draft, busy, onSample, onShelf, paper })
-  latest.current = { draft, busy, onSample, onShelf, paper }
+  const latest = useRef({ draft, busy, onSample, onShelf, paper, drawing })
+  latest.current = { draft, busy, onSample, onShelf, paper, drawing }
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null
       const typing = !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')
-      const { draft, busy, onSample, onShelf, paper } = latest.current
-      if (e.key === 'Escape') { if (draft) setDraft(null); else setOverlay(null) }
-      else if (!typing && !draft && !busy && (e.key === 'd' || e.key === 'D')) {
+      const { draft, busy, onSample, onShelf, paper, drawing } = latest.current
+      if (e.key === 'Escape') { if (drawing) setDrawing(false); else if (draft) setDraft(null); else setOverlay(null) }
+      else if (!typing && !draft && !drawing && !busy && (e.key === 'd' || e.key === 'D')) {
         if (paper) onShelf(SHELF[Math.floor(Math.random() * SHELF.length)])
         else onSample(SAMPLES[Math.floor(Math.random() * SAMPLES.length)], true)
       }
@@ -124,8 +127,8 @@ export default function Upload() {
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold leading-tight">{draft ? 'Almost there!' : 'Show us your drawing!'}</h2>
-            <p className="mt-1 text-base sm:text-lg">{draft ? 'Give it a name, then put it on the planet.' : 'Drop a picture, snap a photo, or try one of ours.'}</p>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold leading-tight">{drawing ? 'Draw it!' : draft ? 'Almost there!' : 'Show us your drawing!'}</h2>
+            <p className={`mt-1 text-base sm:text-lg ${drawing ? 'hidden sm:block' : ''}`}>{drawing ? 'Pick a color and draw. Press Done when it is finished.' : draft ? 'Give it a name, then put it on the planet.' : paper ? 'Draw one, drop a picture, or try one of ours.' : 'Drop a picture, snap a photo, or try one of ours.'}</p>
           </div>
           <IconBtn icon="close" label="Close" className="shrink-0" onClick={() => setOverlay(null)} />
         </div>
@@ -133,7 +136,12 @@ export default function Upload() {
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={picked} />
         <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={picked} />
 
-        {!draft ? (
+        {drawing ? (
+          <DrawBoard
+            onBack={() => setDrawing(false)}
+            onDone={(cut) => goPaper({ src: cut.picture, picture: cut.picture, name: 'My drawing', drawn: cut })}
+          />
+        ) : !draft ? (
           <div className="mt-4 grid gap-4 md:grid-cols-[1.05fr_1fr]">
             <div
               key={shake}
@@ -153,6 +161,7 @@ export default function Upload() {
                   <Icon name="upload" size={46} />
                   <p className="font-display text-xl font-semibold leading-tight">Drop your picture here</p>
                   <div className="flex flex-wrap items-center justify-center gap-3">
+                    {paper && <Btn tone="coral" icon="brush" onClick={() => setDrawing(true)}>Draw one!</Btn>}
                     <Btn tone="yellow" icon="upload" onClick={() => fileRef.current?.click()}>Choose a picture</Btn>
                     {touch && <Btn icon="camera" onClick={() => camRef.current?.click()}>Take a photo</Btn>}
                   </div>
