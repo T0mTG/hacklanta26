@@ -12,6 +12,7 @@ import { MAT } from '../world/materials'
 import { frameFor } from '../world/place'
 import { facing, view } from '../world/rig'
 import { surfaceRadius } from '../world/terrain'
+import { dragStart } from './EaselDrag'
 import { hashString } from './looks'
 import { BOARD_FIT, EASEL, NOTE_SPOTS } from './models'
 import { easels, rtFor } from './registry'
@@ -114,7 +115,24 @@ function Easel({ art }: { art: Artwork }) {
   })
 
   return (
-    <group ref={root} visible={false}>
+    <group
+      ref={root}
+      visible={false}
+      onPointerDown={(e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return
+        e.stopPropagation()
+        dragStart(art.id, e.nativeEvent.clientX, e.nativeEvent.clientY)
+      }}
+      onPointerOver={(e) => {
+        e.stopPropagation()
+        rt.hover = true
+        document.body.style.cursor = 'grab'
+      }}
+      onPointerOut={() => {
+        rt.hover = false
+        document.body.style.cursor = ''
+      }}
+    >
       <group ref={body}>
         <mesh geometry={parts.frame.body} material={MAT.body} castShadow receiveShadow />
         <group position={[0, 0.78, 0.04]} rotation={[-0.14, 0, 0]}>

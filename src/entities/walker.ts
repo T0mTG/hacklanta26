@@ -1,7 +1,7 @@
 import { Vector3 } from 'three'
 import { clamp, rng } from '../lib/rng'
 import { R, angleBetween, offsetDir, stepOnSphere, tangentize } from '../lib/sphere'
-import { blockedAt, inWater, onLand } from '../world/collide'
+import { blockedAt, inWater, onLand, stepBlocked } from '../world/collide'
 
 export interface WalkerCfg {
   home: Vector3 // centre of the area it wanders in
@@ -43,6 +43,11 @@ export class Walker {
 
   private valid(d: Vector3) {
     return this.cfg.swim ? inWater(d, 0.3) : onLand(d, 0.12) && !blockedAt(d, this.cfg.radius)
+  }
+
+  // a step is fine unless it runs into something (or leaves the land / the water)
+  private canStep(from: Vector3, to: Vector3) {
+    return this.cfg.swim ? inWater(to, 0.3) : onLand(to, 0.12) && !stepBlocked(from, to, this.cfg.radius)
   }
 
   private pick() {
@@ -93,7 +98,7 @@ export class Walker {
       _c.copy(this.dir)
       _b.copy(this.fwd)
       stepOnSphere(_c, _b, (this.speed * dt) / R)
-      if (this.valid(_c)) { this.dir.copy(_c); this.fwd.copy(_b); this.stuck = 0 }
+      if (this.canStep(this.dir, _c)) { this.dir.copy(_c); this.fwd.copy(_b); this.stuck = 0 }
       else {
         this.stuck += dt
         this.speed = 0

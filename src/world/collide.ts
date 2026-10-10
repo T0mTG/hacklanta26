@@ -20,5 +20,18 @@ export function blockedAt(d: Vector3, r = 0.25, ignore?: string) {
   return false
 }
 
+// Is the step `from` -> `to` stopped by something solid? Only if it goes deeper into an obstacle: anything that already
+// overlaps (a spawn point, an easel dropped next to you) can always walk away, so nobody is ever stuck.
+export function stepBlocked(from: Vector3, to: Vector3, r = 0.25, ignore?: string) {
+  const deeper = (o: { d: Vector3; r: number }) => {
+    const lim = (o.r + r) / R
+    const dTo = 2 - 2 * to.dot(o.d)
+    return dTo < lim * lim && dTo < 2 - 2 * from.dot(o.d)
+  }
+  for (const o of getWorld().obstacles) if (deeper(o)) return true
+  for (const [id, o] of dynamicObstacles) if (id !== ignore && deeper(o)) return true
+  return false
+}
+
 export const onLand = (d: Vector3, margin = 0.12) => surfaceRadius(d) > WATER_R + margin
 export const inWater = (d: Vector3, margin = 0.3) => surfaceRadius(d) < WATER_R - margin

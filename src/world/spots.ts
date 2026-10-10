@@ -6,16 +6,16 @@ import type { Artwork, Vec3 } from '../data/types'
 import { useStore } from '../store'
 import { blockedAt, onLand } from './collide'
 import { northAt, yawToward } from './place'
-import { REGIONS, type RegionId } from './regions'
+import { REGIONS, SPAWN, type RegionId } from './regions'
 import { isLand, slopeAt } from './terrain'
 
 // Easels need a bit of free ground: land that is not too steep, clear of trees and buildings, and a few steps from other easels.
-export function findSpot(near: Vector3, o: { gap?: number; avoid?: Vector3[] } = {}) {
+export function findSpot(near: Vector3, o: { gap?: number; avoid?: Vector3[]; avoidGap?: number; ignoreId?: string } = {}) {
   const gap = o.gap ?? 0.27
-  const others = useStore.getState().artworks.map((a) => new Vector3(...a.dir))
+  const others = useStore.getState().artworks.filter((a) => a.id !== o.ignoreId).map((a) => new Vector3(...a.dir))
   const ok = (d: Vector3) =>
-    isLand(d, 0.5) && slopeAt(d) < 0.3 && !blockedAt(d, 1.2) &&
-    others.every((p) => angleBetween(d, p) > gap) && (o.avoid ?? []).every((p) => angleBetween(d, p) > 0.12)
+    isLand(d, 0.5) && slopeAt(d) < 0.3 && !blockedAt(d, 1.2, o.ignoreId) &&
+    others.every((p) => angleBetween(d, p) > gap) && (o.avoid ?? []).every((p) => angleBetween(d, p) > (o.avoidGap ?? 0.12))
   const rand = rng(Math.floor(Math.abs(near.x * 977 + near.y * 613 + near.z * 331)))
   for (const radius of [0, 0.09, 0.16, 0.24, 0.33, 0.43, 0.55, 0.7]) {
     const n = radius === 0 ? 1 : 18
@@ -108,7 +108,7 @@ export function ensureNeighbors() {
     if (s.artworks.some((a) => a.id === id)) continue
     const region = REGIONS[n.region]
     const near = offsetDir(region.dir, n.u, n.v)
-    const dir = findSpot(near, { gap: 0.2 }) ?? near
+    const dir = findSpot(near, { gap: 0.2, avoid: [SPAWN], avoidGap: 0.2 }) ?? near
     s.addArtwork({
       id, title: n.title, artist: n.artist, story: n.story, src: `/doodles/${n.file}`, aspect: n.aspect, palette: n.palette,
       at: 0, kind: 'neighbor', dir: dir.toArray() as Vec3, yaw: chooseYaw(dir, yawToward(dir, region.dir)),

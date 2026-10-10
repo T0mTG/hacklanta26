@@ -19,9 +19,13 @@ export const rig = {
   gDir: PLAZA.clone(), gUp: tangentize(new Vector3(0, 1, 0), PLAZA),
   zoom: 1, zoomGoal: 1, spin: { x: 0, y: 0 },
   aspect: 1, dragging: false,
+  // the follow camera's eased state, so it trails the kid a little instead of being bolted to them
+  walk: { target: new Vector3(), dir: new Vector3(0, 0.4, 1).normalize(), up: new Vector3(0, 1, 0), dist: 6.4, ready: false },
   // dev tool: pin the camera somewhere exact (window.__peek), ignoring every mode
   override: null as null | { pos: Vector3; target: Vector3; up: Vector3; fov: number },
 }
+
+export const WALK_FOV = 54
 
 export const ZOOM_MIN = 0.4, ZOOM_MAX = 1.8
 

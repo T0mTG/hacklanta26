@@ -1,5 +1,6 @@
 export interface Note {
   id: string; text: string; color: string; by: string; at: number
+  mine?: boolean // written on this device, so it can be taken back
 }
 
 export type Vec3 = [number, number, number]

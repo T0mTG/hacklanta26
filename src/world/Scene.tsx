@@ -2,7 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { PCFShadowMap, Vector2, Vector3, type DirectionalLight } from 'three'
 import { LITE } from '../lib/env'
+import EaselDrag from '../entities/EaselDrag'
 import Easels from '../entities/Easels'
+import Kid from '../entities/Kid'
+import { player } from '../entities/playerState'
 import Population from '../entities/Population'
 import { lerp } from '../lib/rng'
 import { useStore } from '../store'
@@ -18,7 +21,7 @@ import { ensureNeighbors } from './spots'
 import { surfaceRadius } from './terrain'
 import { easels } from '../entities/registry'
 import { REGIONS, type RegionId } from './regions'
-import { GLOBE_FOV, faceGlobeTo, rig } from './rig'
+import { GLOBE_FOV, faceGlobeTo, rig, view } from './rig'
 
 // One sun that follows the camera, so the side you are looking at is always lit from the upper left.
 function Sun() {
@@ -52,12 +55,14 @@ function Sun() {
 
 // Dev only: window.__shot(name, w, h) renders one frame at that size and saves it through a localhost receiver
 function DevHooks() {
-  const { gl, scene, camera, advance } = useThree()
+  const { gl, scene, camera, advance, clock } = useThree()
   useEffect(() => {
     if (!import.meta.env.DEV) return
     const w = window as unknown as Record<string, unknown>
     w.__store = useStore
     w.__rig = rig
+    w.__player = player
+    w.__view = view
     w.__world = getWorld()
     // __look('lily', 0.6) snaps the globe to a region and zooms in (smaller number = closer)
     w.__look = (id: RegionId, zoom = 1) => {
@@ -79,6 +84,21 @@ function DevHooks() {
       rig.override = { pos, target, up: d.clone(), fov }
     }
     w.__unpeek = () => { rig.override = null }
+    // __walk() snaps straight into the follow camera (skipping the dive) so a shot shows the walking view
+    w.__walk = () => {
+      rig.override = null
+      rig.mode = 'walk'
+      rig.k = 1
+      rig.walk.ready = false
+      useStore.getState().setCam('walk')
+    }
+    // __sim(2) runs two seconds of simulation instantly, in 1/20 s steps (the pane throttles real timers while uncaptured)
+    w.__sim = (seconds = 1, hz = 20) => {
+      const orig = clock.getDelta
+      clock.getDelta = () => 1 / hz
+      for (let i = 0; i < Math.round(seconds * hz); i++) advance(performance.now())
+      clock.getDelta = orig
+    }
     // draw calls and triangles for the last frame
     w.__stats = () => {
       advance(performance.now())
@@ -100,7 +120,7 @@ function DevHooks() {
       const r = await fetch(`http://127.0.0.1:8800/save?name=${name}.jpg`, { method: 'POST', body: blob })
       return r.ok
     }
-  }, [gl, scene, camera, advance])
+  }, [gl, scene, camera, advance, clock])
   return null
 }
 
@@ -117,6 +137,8 @@ function World() {
       <Atmosphere />
       <Easels />
       <Population />
+      <Kid />
+      <EaselDrag />
       <Bursts />
     </>
   )

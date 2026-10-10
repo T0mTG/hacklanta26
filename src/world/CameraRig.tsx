@@ -1,13 +1,22 @@
 import { useEffect, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Color } from 'three'
-import { damp } from '../lib/rng'
+import { Color, Vector3 } from 'three'
+import { player } from '../entities/playerState'
+import { ditherU } from '../lib/dither'
+import { LITE } from '../lib/env'
+import { clamp, damp } from '../lib/rng'
+import { R, slerpDir } from '../lib/sphere'
 import { palette } from '../data/theme'
 import { useStore } from '../store'
-import { R } from '../lib/sphere'
-import { GLOBE_FOV, blendPose, clampZoom, copyPose, ease, fitDist, inputLock, orbit, rig, view } from './rig'
+import { surfaceRadius } from './terrain'
+import { GLOBE_FOV, WALK_FOV, blendPose, clampZoom, copyPose, ease, fitDist, inputLock, orbit, rig, view } from './rig'
 
-// Title: the planet turns slowly. Planet view: grab and spin it, wheel or pinch to zoom.
+const _head = new Vector3(), _look = new Vector3(), _cdir = new Vector3(), _pos = new Vector3(), _n = new Vector3()
+
+// Three ways to look at the planet:
+//  title - the planet turns slowly behind the logo
+//  globe - grab and spin it, wheel or pinch to zoom
+//  walk  - behind the kid, drag to look around, wheel or pinch to zoom
 export default function CameraRig() {
   const { camera, gl } = useThree()
   const sky = useMemo(() => ({
@@ -25,9 +34,14 @@ export default function CameraRig() {
       const [a, b] = [...pts.values()]
       return Math.hypot(a.x - b.x, a.y - b.y)
     }
+    const mode = () => useStore.getState().cam
+    const blocked = () => {
+      const s = useStore.getState()
+      return !!s.viewing || !!s.overlay || s.drawer || s.help
+    }
 
     const down = (e: PointerEvent) => {
-      if (useStore.getState().cam !== 'globe') return
+      if (mode() === 'title' || blocked()) return
       pts.set(e.pointerId, { x: e.clientX, y: e.clientY })
       el.setPointerCapture(e.pointerId)
       rig.dragging = true
@@ -38,14 +52,24 @@ export default function CameraRig() {
       const p = pts.get(e.pointerId)
       if (!p || inputLock.easel) return
       const dx = e.clientX - p.x, dy = e.clientY - p.y
+      const walking = mode() === 'walk'
       if (pts.size === 2) {
         const before = pinchDist()
         p.x = e.clientX; p.y = e.clientY
         const after = pinchDist()
-        if (before > 0 && after > 0) rig.zoomGoal = clampZoom(rig.zoomGoal * (before / after))
+        if (before > 0 && after > 0) {
+          if (walking) player.zoom = clamp(player.zoom * (before / after), 0.55, 2.4)
+          else rig.zoomGoal = clampZoom(rig.zoomGoal * (before / after))
+        }
         return
       }
       p.x = e.clientX; p.y = e.clientY
+      if (walking) {
+        // look around the kid: turn the camera heading and tilt it up or down
+        player.camFwd.applyAxisAngle(player.dir, -dx * 0.0065)
+        player.pitch = clamp(player.pitch + dy * 0.0045, 0.12, 1.25)
+        return
+      }
       const k = 1 / pxPerRad()
       orbit(dx * k, dy * k)
       const now = performance.now(), dt = Math.max(8, now - lastT) / 1000
@@ -59,9 +83,11 @@ export default function CameraRig() {
       if (performance.now() - lastT > 90) rig.spin.x = rig.spin.y = 0 // held still before letting go: no fling
     }
     const wheel = (e: WheelEvent) => {
-      if (useStore.getState().cam !== 'globe') return
+      const m = mode()
+      if (m === 'title' || blocked()) return
       e.preventDefault()
-      rig.zoomGoal = clampZoom(rig.zoomGoal * Math.exp(e.deltaY * 0.0012))
+      if (m === 'walk') player.zoom = clamp(player.zoom * Math.exp(e.deltaY * 0.0012), 0.55, 2.4)
+      else rig.zoomGoal = clampZoom(rig.zoomGoal * Math.exp(e.deltaY * 0.0012))
     }
     el.addEventListener('pointerdown', down)
     el.addEventListener('pointermove', move)
@@ -84,9 +110,10 @@ export default function CameraRig() {
 
     if (cam !== rig.mode) {
       copyPose(rig.from, rig.pose)
+      rig.dur = cam === 'walk' ? (rig.mode === 'title' ? 2.6 : 1.7) : cam === 'title' ? 1.9 : 1.7
       rig.mode = cam
       rig.k = 0
-      rig.dur = cam === 'title' ? 1.8 : 1.5
+      rig.walk.ready = false
     }
 
     if (cam === 'title') orbit(0.08 * dt, 0)
@@ -99,14 +126,41 @@ export default function CameraRig() {
 
     const g = rig.goal
     const fit = fitDist(rig.aspect)
-    g.up.copy(rig.gUp); g.dir.copy(rig.gDir); g.fov = GLOBE_FOV; g.sky = 0
-    if (cam === 'title') {
-      g.dist = fit * 1.08
-      // aim a little above the planet so it sits lower on screen, under the logo
-      g.target.copy(rig.gUp).multiplyScalar(2 * g.dist * Math.tan((GLOBE_FOV * Math.PI) / 360) * 0.1)
+    if (cam === 'walk') {
+      const p = player
+      _head.copy(p.dir).multiplyScalar(surfaceRadius(p.dir) + 0.85)
+      _look.copy(_head).addScaledVector(p.camFwd, 0.7)
+      _cdir.copy(p.camFwd).multiplyScalar(-Math.cos(p.pitch)).addScaledVector(p.dir, Math.sin(p.pitch)).normalize()
+      let dist = 7.2 * p.zoom
+      // keep the camera out of the hills: pull it in until it clears the ground
+      for (let i = 0; i < 6; i++) {
+        _pos.copy(_look).addScaledVector(_cdir, dist)
+        const r = _pos.length()
+        _n.copy(_pos).divideScalar(r)
+        if (r > surfaceRadius(_n) + 0.9) break
+        dist *= 0.82
+      }
+      // trail the kid a little instead of being bolted to them
+      const w = rig.walk
+      if (!w.ready) { w.target.copy(_look); w.dir.copy(_cdir); w.up.copy(p.dir); w.dist = dist; w.ready = true }
+      else {
+        w.target.lerp(_look, 1 - Math.exp(-12 * dt))
+        slerpDir(w.dir, _cdir, 1 - Math.exp(-9 * dt), w.dir)
+        slerpDir(w.up, p.dir, 1 - Math.exp(-9 * dt), w.up)
+        w.dist = damp(w.dist, dist, 8, dt)
+      }
+      g.target.copy(w.target); g.dir.copy(w.dir); g.up.copy(w.up)
+      g.dist = w.dist; g.fov = WALK_FOV; g.sky = 1
     } else {
-      g.dist = Math.max(17, fit * rig.zoom)
-      g.target.set(0, 0, 0)
+      g.up.copy(rig.gUp); g.dir.copy(rig.gDir); g.fov = GLOBE_FOV; g.sky = 0
+      if (cam === 'title') {
+        g.dist = fit * 1.08
+        // aim a little above the planet so it sits lower on screen, under the logo
+        g.target.copy(rig.gUp).multiplyScalar(2 * g.dist * Math.tan((GLOBE_FOV * Math.PI) / 360) * 0.1)
+      } else {
+        g.dist = Math.max(17, fit * rig.zoom)
+        g.target.set(0, 0, 0)
+      }
     }
 
     rig.k = Math.min(1, rig.k + dt / rig.dur)
@@ -129,6 +183,10 @@ export default function CameraRig() {
     view.camera = camera
     view.camDir.copy(camera.position).normalize()
     view.horizon = Math.min(0.92, R / camera.position.length()) - 0.3
+
+    // anything between the camera and the kid fades out in a dither pattern
+    ditherU.uDTarget.value.copy(_head)
+    ditherU.uDOn.value = cam === 'walk' && rig.k > 0.5 && !LITE && !o ? 1 : 0
 
     // the CSS sky behind the canvas goes from flat teal (planet view) to a soft gradient (on the ground)
     if (Math.abs(p.sky - sky.last) > 0.003) {

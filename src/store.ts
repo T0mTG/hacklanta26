@@ -32,6 +32,12 @@ interface S {
   pending: Artwork | null; stage: (a: Artwork | null) => void
   // the easel that should fall out of the sky when it first appears, and how long to wait before it does
   spawn: string | null; spawnDelay: number; setSpawn: (id: string | null, delay?: number) => void
+
+  // what the kid is doing in the world
+  viewing: string | null; setViewing: (id: string | null) => void // the drawing open in the big picture view
+  nearId: string | null; setNear: (id: string | null) => void // the easel close enough to look at
+  drawer: boolean; setDrawer: (b: boolean) => void // the "my drawings" list
+  help: boolean; setHelp: (b: boolean) => void
 }
 
 let toastTimer = 0
@@ -42,7 +48,7 @@ export const useStore = create<S>()(
     (set) => ({
       screen: START_SCREEN === 'world' ? 'world' : 'landing', setScreen: (screen) => set({ screen }),
       overlay: null, setOverlay: (overlay) => set({ overlay }),
-      cam: START_SCREEN === 'world' ? 'globe' : 'title', setCam: (cam) => set({ cam }),
+      cam: START_SCREEN === 'world' ? 'walk' : 'title', setCam: (cam) => set({ cam }),
       toast: null,
       say: (toast) => {
         set({ toast })
@@ -60,6 +66,11 @@ export const useStore = create<S>()(
 
       pending: null, stage: (pending) => set({ pending }),
       spawn: null, spawnDelay: 0.8, setSpawn: (spawn, delay = 0.8) => set({ spawn, spawnDelay: delay }),
+
+      viewing: null, setViewing: (viewing) => set({ viewing }),
+      nearId: null, setNear: (nearId) => set({ nearId }),
+      drawer: false, setDrawer: (drawer) => set({ drawer }),
+      help: false, setHelp: (help) => set({ help }),
     }),
     {
       name: KEY,

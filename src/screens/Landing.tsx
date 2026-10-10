@@ -29,7 +29,7 @@ export default function Landing() {
       <div className="flex flex-col items-center gap-3">
         {returning ? (
           <>
-            <Btn big tone="yellow" icon="globe" onClick={() => { setScreen('world'); setCam('globe') }}>Back to my planet</Btn>
+            <Btn big tone="yellow" icon="globe" onClick={() => { setScreen('world'); setCam('walk') }}>Back to my planet</Btn>
             <Btn icon="plus" onClick={() => setOverlay('upload')}>Add a drawing</Btn>
           </>
         ) : (

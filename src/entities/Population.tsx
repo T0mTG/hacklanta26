@@ -8,11 +8,12 @@ import { useStore } from '../store'
 import { getWorld } from '../world/layout'
 import { frameFor, yawToward } from '../world/place'
 import { watchSlot } from '../world/spots'
-import { REGIONS, FIELDS, type RegionId } from '../world/regions'
+import { REGIONS, FIELDS, SPAWN, type RegionId } from '../world/regions'
 import { facing } from '../world/rig'
 import { surfaceRadius } from '../world/terrain'
 import { CRITTER_SPEC, Critter, Person, newCritterCtl, newPersonCtl, placeOnPlanet, type CritterKind, type PersonMode } from './Actors'
 import { hashString, pickLook } from './looks'
+import { player } from './playerState'
 import { rtFor, type EaselRT } from './registry'
 import { Walker } from './walker'
 
@@ -53,8 +54,44 @@ const CRITTERS: { kind: CritterKind; region: RegionId; u: number; v: number; ran
   { kind: 'duck', region: 'duck', u: 0, v: 0, range: 0.13, n: 2 },
   { kind: 'duckling', region: 'duck', u: 0, v: 0, range: 0.13, n: 1 },
   { kind: 'duck', region: 'lake', u: 0, v: 0, range: 0.28, n: 3 },
-  { kind: 'cat', region: 'plaza', u: -0.1, v: -0.2, range: 0.25, n: 1 },
 ]
+
+const _cf = new Vector3(), _cb = new Vector3()
+
+// The cat that tags along behind the kid, like in the reference: it sits near the spawn until you walk, then follows.
+function Companion() {
+  const g = useRef<Group>(null)
+  const ctl = useMemo(newCritterCtl, [])
+  const walker = useMemo(() => new Walker({ home: offsetDir(SPAWN, -0.04, 0.02), range: 0.1, walk: 0.9, run: 3.1, radius: 0.2, gait: 12 }, 77, offsetDir(SPAWN, -0.035, -0.012)), [])
+  const behind = useMemo(() => new Vector3(), [])
+  useFrame((_, delta) => {
+    const o = g.current
+    if (!o) return
+    const dt = Math.min(delta, 0.05)
+    const d = angleBetween(walker.dir, player.dir) * R
+    const seen = facing(walker.dir, 0.1)
+    if (d > 16 && !seen) {
+      // out of sight and far behind: quietly catch up
+      behind.copy(player.dir)
+      _cf.copy(player.fwd).applyAxisAngle(player.dir, 2.4)
+      stepOnSphere(behind, _cf, 1.6 / R)
+      walker.dir.copy(behind)
+    }
+    o.visible = seen
+    if (!seen) return
+    // a spot beside and a little behind the kid
+    _cb.copy(player.dir)
+    _cf.copy(player.fwd).applyAxisAngle(player.dir, 2.4)
+    stepOnSphere(_cb, _cf, 1.3 / R)
+    if (d > 2.2 || player.speed > 0.4) walker.update(dt, { at: _cb, stop: 0.45, run: d > 4 })
+    else walker.update(dt, { at: _cb, stop: 0.9 })
+    ctl.speed = walker.speed
+    ctl.phase = walker.phase
+    ctl.happy = d < 2.4 && player.speed < 0.3 ? 0.5 : 0
+    placeOnPlanet(o, walker.dir, walker.fwd)
+  })
+  return <Critter ref={g} kind="cat" ctl={ctl} seed={7} />
+}
 
 // ------------------------------------------------------------------ people
 interface Folk { home: Vector3; range: number; seed: number; kind: 'kid' | 'adult' | 'farmer'; work?: boolean }
@@ -204,6 +241,7 @@ export default function Population() {
       {critters.map((c) => <Wanderer key={c.key} kind={c.kind} home={c.home} range={c.range} seed={c.seed} />)}
       {folk.map(({ key, ...f }) => <Villager key={key} {...f} />)}
       <Family />
+      <Companion />
       {artworks.map((a) => <Watchers key={a.id} art={a} />)}
     </>
   )
