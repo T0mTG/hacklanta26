@@ -1,6 +1,6 @@
 # STATUS: Doodle Planet (round 2)
 
-Built: PLAN.md Phases 0 to 4 on branch `round-2-globe`, one commit per phase. Phases 5 to 7 (polish, reliability, presentation) are not started. Round 1 (the graveyard diorama) is untouched on branch `long`.
+Built: PLAN.md Phases 0 to 4, one commit per phase, then a pass that balances the trees against room for drawings. Phases 5 to 7 (polish, reliability, presentation) are not started. Round 1 (the graveyard diorama) is the git history up to commit `b17a721`.
 
 ## What works
 - **Flow:** landing -> upload -> details -> "building your easel" -> the camera dives from space to the plaza, the kid and a cat appear, and your easel falls out of the sky with a star burst while people walk over to look. Returning visitors get "Back to my planet".

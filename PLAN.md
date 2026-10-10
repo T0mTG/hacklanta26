@@ -3,7 +3,7 @@
 Track: unchanged from round 1 (Adobe Creative Track)
 One-liner: *Every kid's drawing gets its own easel on a tiny low-poly planet, and the kid can walk around it.*
 
-Round 2 is a restart, not a continuation. Round 1 (the paper-craft graveyard, "The Afterlife of Darlings") stays on branch `long`. Round 2 lives on `round-2-globe`, and builds **Phases 0 to 4** below.
+Round 2 is a restart, not a continuation. Round 1 (the paper-craft graveyard, "The Afterlife of Darlings") is the git history up to commit `b17a721`. Round 2 is everything after it, and builds **Phases 0 to 4** below.
 
 **Decision rule:** Demo impact > sophistication. Reliability > production architecture. Polish > features. Convincing illusion > complex implementation. **Kid-first:** big targets, almost no reading, nothing scary, nothing leaves the device.
 
