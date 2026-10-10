@@ -13,3 +13,24 @@ export interface Artwork {
   dir: Vec3; yaw: number
   kind: 'upload' | 'sample' | 'neighbor'
 }
+
+// ---------- the Paper Globe's saved data ----------
+// Everything the world starts with has a stable id (region + index), so only what the kid changed is remembered:
+// elements they dragged somewhere new, and elements they added from their own drawings.
+export interface PaperPlacement { dir: Vec3; yaw: number }
+
+export interface PaperAdded {
+  uid: string
+  entry: string // id of the cut-out in the library
+  name: string // what the AI called it ("Cat")
+  src?: string // the kid's own picture (a small JPEG), shown big when the element is tapped
+  at: number
+  dir: Vec3; yaw: number; scale: number; flip: boolean
+}
+
+export interface PaperSave {
+  added: PaperAdded[]
+  moved: Record<string, PaperPlacement>
+}
+
+export const emptyPaperSave = (): PaperSave => ({ added: [], moved: {} })

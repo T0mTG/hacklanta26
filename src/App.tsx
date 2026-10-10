@@ -14,18 +14,19 @@ import Processing from './screens/Processing'
 export default function App() {
   const screen = useStore((s) => s.screen)
   const overlay = useStore((s) => s.overlay)
+  const globe = useStore((s) => s.globe)
   return (
     <>
       <Sky />
       <Scene />
       <div className="ui-layer">
-        {screen === 'world' && <EaselLabels />}
+        {screen === 'world' && globe === 'toy' && <EaselLabels />}
         {screen === 'landing' && overlay === null && <Landing />}
         {screen === 'world' && overlay === null && <Hud />}
         {screen === 'world' && (
           <>
-            <ArtworkModal />
-            <Drawer />
+            {globe === 'toy' && <ArtworkModal />}
+            {globe === 'toy' && <Drawer />}
             <Help />
           </>
         )}

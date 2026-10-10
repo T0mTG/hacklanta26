@@ -152,3 +152,10 @@ input, textarea { font: inherit; color: inherit; user-select: text; }
 @media (prefers-reduced-motion: reduce) {
   .logo span, .sky-sun .rays, .spark { animation: none; }
 }
+
+/* ---------- landing: the two globe buttons ---------- */
+.globe-choice { flex-direction: column; gap: .2rem; min-height: 0; min-width: 9.2rem; max-width: 12rem; padding: .55rem .9rem .7rem; text-align: center; border-radius: 20px; }
+.globe-choice svg { margin-bottom: .1rem; }
+.globe-choice.on { transform: translateY(-4px); box-shadow: 6px 8px 0 var(--ink); }
+.globe-choice.on:hover { transform: translateY(-5px); }
+@media (max-width: 420px) { .globe-choice { min-width: 0; flex: 1 1 0; padding: .45rem .55rem .6rem; } }

@@ -6,6 +6,7 @@ import { player, togglePlanetView } from '../entities/playerState'
 import { R, angleBetween } from '../lib/sphere'
 import { useStore } from '../store'
 import { nearestRegion, type Region } from '../world/regions'
+import { VARIANTS } from '../world/variants'
 import { view } from '../world/rig'
 import Icon from './Icon'
 import { IconBtn } from './kit'
@@ -150,7 +151,8 @@ function InteractButton() {
 
 export default function Hud() {
   const cam = useStore((s) => s.cam)
-  const count = useStore((s) => s.artworks.length)
+  const globe = useStore((s) => s.globe)
+  const count = useStore((s) => (s.globe === 'toy' ? s.artworks.length : s.paper.added.length))
   const setOverlay = useStore((s) => s.setOverlay)
   const setDrawer = useStore((s) => s.setDrawer)
   const setHelp = useStore((s) => s.setHelp)
@@ -172,13 +174,13 @@ export default function Hud() {
         className="sticker absolute left-3 top-3 sm:left-4 sm:top-4 px-3.5 py-2 flex items-center gap-2.5 hit cursor-pointer"
         title="Back to the title screen" onClick={goHome}
       >
-        <span className="font-display font-bold text-lg leading-none">Doodle Planet</span>
+        <span className="font-display font-bold text-lg leading-none">{globe === 'toy' ? 'Doodle Planet' : VARIANTS[globe].name}</span>
         <span className="badge-dark" title="Drawings on the planet">{count}</span>
       </button>
       <div className="absolute right-3 top-3 sm:right-4 sm:top-4 flex flex-col gap-3">
         <IconBtn icon="globe" label="Planet view (G)" active={cam === 'globe'} onClick={togglePlanetView} />
-        <IconBtn icon="frame" label="My drawings" onClick={() => setDrawer(true)} />
-        <IconBtn icon="plus" label="Add a drawing" onClick={() => setOverlay('upload')} />
+        {globe === 'toy' && <IconBtn icon="frame" label="My drawings" onClick={() => setDrawer(true)} />}
+        {globe === 'toy' && <IconBtn icon="plus" label="Add a drawing" onClick={() => setOverlay('upload')} />}
         <IconBtn icon={full ? 'shrink' : 'expand'} label="Full screen" onClick={toggleFull} />
         <IconBtn icon="help" label="How to play" onClick={() => setHelp(true)} />
       </div>

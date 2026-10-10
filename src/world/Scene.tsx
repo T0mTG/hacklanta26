@@ -2,23 +2,19 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { PCFShadowMap, Vector2, Vector3, type DirectionalLight } from 'three'
 import { LITE } from '../lib/env'
-import EaselDrag from '../entities/EaselDrag'
-import Easels from '../entities/Easels'
-import Kid from '../entities/Kid'
 import { player } from '../entities/playerState'
-import Population from '../entities/Population'
+import PaperContent from '../paper/PaperContent'
 import { lerp } from '../lib/rng'
 import { useStore } from '../store'
-import Atmosphere from './Atmosphere'
-import Buildings from './Buildings'
 import Bursts from './Burst'
 import CameraRig from './CameraRig'
-import Flora from './Flora'
 import { getWorld } from './layout'
 import Planet from './Planet'
 import { northAt } from './place'
-import { easelCapacity, ensureNeighbors } from './spots'
+import { easelCapacity } from './spots'
 import { surfaceRadius } from './terrain'
+import ToyContent from './ToyContent'
+import { VARIANTS } from './variants'
 import { easels } from '../entities/registry'
 import { REGIONS, type RegionId } from './regions'
 import { GLOBE_FOV, faceGlobeTo, rig, view } from './rig'
@@ -126,21 +122,16 @@ function DevHooks() {
   return null
 }
 
+// The terrain, light, sky and camera are shared; what stands on the ground depends on the globe.
 function World() {
-  // the planet is never empty: six neighbor drawings are there from the first moment
-  useEffect(() => { ensureNeighbors() }, [])
+  const globe = useStore((s) => s.globe)
+  const variant = VARIANTS[globe]
   return (
     <>
       <hemisphereLight args={['#eefaf5', '#86b57a', 1.9]} />
       <Sun />
-      <Planet />
-      <Flora />
-      <Buildings />
-      <Atmosphere />
-      <Easels />
-      <Population />
-      <Kid />
-      <EaselDrag />
+      <Planet style={variant.terrain} />
+      {globe === 'paper' ? <PaperContent key="paper" /> : <ToyContent key="toy" />}
       <Bursts />
     </>
   )
