@@ -4,6 +4,8 @@ import { useStore } from '../store'
 import { SAMPLES, sampleUrl, type Sample } from '../data/samples'
 import { buildArtwork, checkFile, processBlob, processUrl, titleFromName } from '../lib/artwork'
 import { clamp } from '../lib/rng'
+import { SHELF } from '../paper/library'
+import type { PaperEntry } from '../paper/types'
 import Icon from '../ui/Icon'
 import { Btn, IconBtn } from '../ui/kit'
 
@@ -15,6 +17,8 @@ export default function Upload() {
   const say = useStore((s) => s.say)
   const stage = useStore((s) => s.stage)
   const myName = useStore((s) => s.myName)
+  const stagePaper = useStore((s) => s.stagePaper)
+  const paper = useStore((s) => s.globe) === 'paper'
   const setMyName = useStore((s) => s.setMyName)
 
   const [draft, setDraft] = useState<Draft | null>(null)
@@ -44,13 +48,21 @@ export default function Upload() {
     setBusy(true)
     try {
       const p = await processBlob(file, true)
-      take({ kind: 'upload', src: p.dataUrl, aspect: p.aspect, palette: p.palette, title: titleFromName(file.name), story: '' })
+      // on the Paper Globe there is nothing to name: the drawing goes straight to the AI
+      if (paper) goPaper({ src: p.dataUrl, picture: p.dataUrl, name: file.name })
+      else take({ kind: 'upload', src: p.dataUrl, aspect: p.aspect, palette: p.palette, title: titleFromName(file.name), story: '' })
     } catch {
       fail("Hmm, we couldn't open that picture. Try a different one!")
     } finally {
       setBusy(false)
     }
   }
+
+  const goPaper = (p: { src: string; picture?: string; name?: string; entryId?: string }) => {
+    stagePaper(p)
+    setOverlay('processing')
+  }
+  const onShelf = (e: PaperEntry) => goPaper({ src: e.rawUrl!, entryId: e.id, name: e.label })
 
   const onSample = async (s: Sample, quick = false) => {
     setBusy(true)
@@ -67,15 +79,18 @@ export default function Upload() {
   }
 
   // Esc steps back; D picks a surprise drawing and goes straight to the planet
-  const latest = useRef({ draft, busy, onSample })
-  latest.current = { draft, busy, onSample }
+  const latest = useRef({ draft, busy, onSample, onShelf, paper })
+  latest.current = { draft, busy, onSample, onShelf, paper }
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null
       const typing = !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')
-      const { draft, busy, onSample } = latest.current
+      const { draft, busy, onSample, onShelf, paper } = latest.current
       if (e.key === 'Escape') { if (draft) setDraft(null); else setOverlay(null) }
-      else if (!typing && !draft && !busy && (e.key === 'd' || e.key === 'D')) onSample(SAMPLES[Math.floor(Math.random() * SAMPLES.length)], true)
+      else if (!typing && !draft && !busy && (e.key === 'd' || e.key === 'D')) {
+        if (paper) onShelf(SHELF[Math.floor(Math.random() * SHELF.length)])
+        else onSample(SAMPLES[Math.floor(Math.random() * SAMPLES.length)], true)
+      }
     }
     const stop = (e: Event) => e.preventDefault() // a picture dropped beside the zone should not navigate the page away
     window.addEventListener('keydown', onKey)
@@ -148,13 +163,23 @@ export default function Upload() {
 
             <div>
               <p className="font-display font-semibold text-lg mb-2">No drawing handy? Try one of these:</p>
-              <div className="grid grid-cols-5 gap-2">
-                {SAMPLES.map((s) => (
-                  <button key={s.id} className="sticker-btn !p-1 !min-h-0 aspect-square overflow-hidden hit" title={s.title} aria-label={s.title} disabled={busy} onClick={() => onSample(s)}>
-                    <img src={sampleUrl(s)} alt="" className="w-full h-full object-cover rounded-lg" draggable={false} />
-                  </button>
-                ))}
-              </div>
+              {paper ? (
+                <div className="grid grid-cols-4 gap-2">
+                  {SHELF.map((e) => (
+                    <button key={e.id} className="sticker-btn !p-1 !min-h-0 aspect-square overflow-hidden hit bg-white" title={e.label} aria-label={e.label} disabled={busy} onClick={() => onShelf(e)}>
+                      <img src={e.rawUrl} alt="" className="w-full h-full object-contain rounded-lg bg-white" draggable={false} />
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-5 gap-2">
+                  {SAMPLES.map((s) => (
+                    <button key={s.id} className="sticker-btn !p-1 !min-h-0 aspect-square overflow-hidden hit" title={s.title} aria-label={s.title} disabled={busy} onClick={() => onSample(s)}>
+                      <img src={sampleUrl(s)} alt="" className="w-full h-full object-cover rounded-lg" draggable={false} />
+                    </button>
+                  ))}
+                </div>
+              )}
               {!touch && <p className="mt-3 text-sm">Press <span className="keycap">D</span> for a surprise drawing.</p>}
             </div>
           </div>

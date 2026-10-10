@@ -5,7 +5,7 @@ import { offsetDir } from '../lib/sphere'
 import { blockedAt, inWater, onLand, staticObstacles } from '../world/collide'
 import { REGIONS, type RegionId } from '../world/regions'
 import { newItem, type PaperItem } from './items'
-import { BirdLife, FishLife, GroundLife, InsectLife, lifeWorld, type PondInfo } from './life'
+import { BirdLife, FishLife, GroundLife, InsectLife, PONDS_LIST, lifeWorld, type PondInfo } from './life'
 import { BY_ID } from './library'
 import type { Plan } from './layout'
 import type { PaperScene } from './PaperScene'
@@ -24,11 +24,12 @@ interface Cast {
   lane?: number
 }
 
-const PONDS: Record<'lily' | 'duck' | 'lake', PondInfo> = {
+export const PONDS: Record<'lily' | 'duck' | 'lake', PondInfo> = {
   lily: { center: REGIONS.lily.dir, radius: 0.3 },
   duck: { center: REGIONS.duck.dir, radius: 0.26 },
   lake: { center: REGIONS.lake.dir, radius: 0.5 },
 }
+PONDS_LIST.push(PONDS.lily, PONDS.duck, PONDS.lake)
 
 const FISH = ['fish-blue', 'fish-orange', 'fish-green']
 

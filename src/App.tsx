@@ -12,6 +12,8 @@ import Scene from './world/Scene'
 import Landing from './screens/Landing'
 import Upload from './screens/Upload'
 import Processing from './screens/Processing'
+import { PaperDrawer, PaperLabels, PaperViewer } from './paper/PaperPanels'
+import PaperProcessing from './paper/PaperProcessing'
 
 export default function App() {
   if (SHEET) return <DebugSheet />
@@ -27,19 +29,19 @@ function Game() {
       <Sky />
       <Scene />
       <div className="ui-layer">
-        {screen === 'world' && globe === 'toy' && <EaselLabels />}
+        {screen === 'world' && (globe === 'toy' ? <EaselLabels /> : <PaperLabels />)}
         {screen === 'landing' && overlay === null && <Landing />}
         {screen === 'world' && overlay === null && <Hud />}
         {screen === 'world' && (
           <>
-            {globe === 'toy' && <ArtworkModal />}
-            {globe === 'toy' && <Drawer />}
+            {globe === 'toy' ? <ArtworkModal /> : <PaperViewer />}
+            {globe === 'toy' ? <Drawer /> : <PaperDrawer />}
             <Help />
           </>
         )}
         <AnimatePresence mode="wait">
           {overlay === 'upload' && <Upload key="upload" />}
-          {overlay === 'processing' && <Processing key="processing" />}
+          {overlay === 'processing' && (globe === 'paper' ? <PaperProcessing key="ai" /> : <Processing key="processing" />)}
         </AnimatePresence>
         <Toast />
       </div>

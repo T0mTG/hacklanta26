@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { PersistStorage, StorageValue } from 'zustand/middleware'
 import { persist } from 'zustand/middleware'
 import { FRESH, START_SCREEN } from './lib/env'
-import { emptyPaperSave, type Artwork, type Note, type PaperAdded, type PaperPlacement, type PaperSave } from './data/types'
+import { emptyPaperSave, type Artwork, type Note, type PaperAdded, type PaperPending, type PaperPlacement, type PaperSave } from './data/types'
 import { VARIANTS, initialGlobe, rememberGlobe, type GlobeId } from './world/variants'
 
 // `screen` is the big backdrop; `overlay` is a panel drawn over whichever screen is active,
@@ -43,6 +43,9 @@ interface S {
   paperAdd: (a: PaperAdded) => void
   paperPatchAdded: (uid: string, patch: Partial<PaperAdded>) => void
   paperMove: (uid: string, p: PaperPlacement) => void
+  paperRemove: (uid: string) => void
+  // a picture chosen for the paper globe, shown on the AI screen until it has been looked at
+  paperPending: PaperPending | null; stagePaper: (p: PaperPending | null) => void
 
   // a drawing that has been chosen and named but is not on the planet yet (shown while "building your easel")
   pending: Artwork | null; stage: (a: Artwork | null) => void
@@ -125,6 +128,8 @@ export const useStore = create<S>()(
       paperPatchAdded: (uid, patch) =>
         set((s) => ({ paper: { ...s.paper, added: s.paper.added.map((a) => (a.uid === uid ? { ...a, ...patch } : a)) } })),
       paperMove: (uid, p) => set((s) => ({ paper: { ...s.paper, moved: { ...s.paper.moved, [uid]: p } } })),
+      paperRemove: (uid) => set((s) => ({ paper: { ...s.paper, added: s.paper.added.filter((a) => a.uid !== uid) } })),
+      paperPending: null, stagePaper: (paperPending) => set({ paperPending }),
 
       pending: null, stage: (pending) => set({ pending }),
       spawn: null, spawnDelay: 0.8, setSpawn: (spawn, delay = 0.8) => set({ spawn, spawnDelay: delay }),

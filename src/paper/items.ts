@@ -4,7 +4,13 @@ import type { PaperEntry } from './types'
 
 // Something that moves by itself (Phase 3): it writes the item's pose every frame
 export interface Life {
+  // true when the Life looks after the item itself while the kid carries it (walkers do); otherwise the scene holds it still
+  readonly handlesDrag?: boolean
+  // true while the Life is in the middle of something that must finish even out of sight (a fall, a dive), so the scene keeps it going
+  readonly always?: boolean
   update(item: PaperItem, dt: number, time: number): void
+  // the kid carried it somewhere new: make that its home
+  rehome?(item: PaperItem, dir: Vector3): void
 }
 
 // A pose written by a Life: where the card is, how it is turned and how big it is (squash included)

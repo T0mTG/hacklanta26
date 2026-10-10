@@ -40,6 +40,8 @@ export interface CutoutSpec {
   colors: string[] // the drawing's main colors
   outline: number[] // silhouette as u,v pairs, counter-clockwise
   shelf?: boolean // has a raw picture on the demo shelf
+  rawFit?: [number, number, number, number] // where the cut-out sits in that picture: x, y, width, height, 0..1, y down
+  rawSize?: [number, number] // the raw picture's size in pixels
   // per-element overrides of the kind's defaults
   size?: number; shape?: Shape; behavior?: Behavior; back?: 'mirror' | 'plain'; cards?: 2 | 3
   backMix?: number // how much of the plain paper shows through on a plain back (0.64 if not said)

@@ -87,7 +87,13 @@ export class PaperScene {
     for (const it of paperItems.values()) {
       if (!it.life) continue
       // things on the far side of the planet wait for you: no one is looking
-      if (!PaperScene.updateAll && !it.dragging && !facing(it.dir, 0.3)) continue
+      if (!PaperScene.updateAll && !it.dragging && !it.life.always && !facing(it.dir, 0.3)) continue
+      if (it.dragging && !it.life.handlesDrag) {
+        // carried by the kid: a bird, fish or butterfly is held still, upright, until it is put down
+        it.pose = null
+        this.writePose(it)
+        continue
+      }
       it.life.update(it, dt, time)
       this.writePose(it)
     }

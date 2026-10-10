@@ -264,7 +264,9 @@ async function cutOut(el, sheet) {
     if (colors.length === 3) break
   }
 
-  return { rgba: out, w: tw, h: th, anchor, outline: uv, colors: colors.map((c) => hex(...c)), bgEstimate: bg }
+  // where the cut-out sits in the sheet (the drawing's box plus the outline and the border), in sheet pixels
+  const sheetBox = turns === 0 ? { x: c.x0 + bx0 + (tx0 - m) / s, y: c.y0 + by0 + (ty0 - m) / s, w: tw / s, h: th / s } : null
+  return { rgba: out, w: tw, h: th, anchor, outline: uv, colors: colors.map((c) => hex(...c)), bgEstimate: bg, sheetBox }
 }
 
 // the original picture, for the fake AI to look at: the crop with some room around it, on white
@@ -276,7 +278,8 @@ async function rawPicture(el, sheet) {
   const side = Math.max(x1 - x0, y1 - y0)
   let img = sharp(sheet.data, { raw: { width: sheet.w, height: sheet.h, channels: sheet.ch } }).extract({ left: x0, top: y0, width: x1 - x0, height: y1 - y0 })
   if (el.rot) img = img.rotate(el.rot)
-  return img.flatten({ background: '#ffffff' }).resize({ width: Math.min(x1 - x0, 560), height: Math.min(y1 - y0, 560), fit: 'inside', withoutEnlargement: side < 560 }).jpeg({ quality: 84 }).toBuffer()
+  const buf = await img.flatten({ background: '#ffffff' }).resize({ width: Math.min(x1 - x0, 560), height: Math.min(y1 - y0, 560), fit: 'inside', withoutEnlargement: side < 560 }).jpeg({ quality: 84 }).toBuffer()
+  return { buf, rect: { x: x0, y: y0, w: x1 - x0, h: y1 - y0 } }
 }
 
 // ------------------------------------------------------------------ run
@@ -291,12 +294,24 @@ const previews = []
 let failed = 0
 for (const el of manifest.elements) {
   const t0 = performance.now()
+  let entryRaw = null
   try {
     const sheet = await loadSheet(el.sheet, manifest.sheets[el.sheet])
     const r = await cutOut(el, sheet)
     await sharp(r.rgba, { raw: { width: r.w, height: r.h, channels: 4 } }).webp({ quality: 90, alphaQuality: 100, effort: 5 }).toFile(path.join(OUT_DIR, `${el.id}.webp`))
-    if (el.shelf) fs.writeFileSync(path.join(RAW_DIR, `${el.id}.jpg`), await rawPicture(el, sheet))
+    let rawFit = null
+    if (el.shelf) {
+      const raw = await rawPicture(el, sheet)
+      fs.writeFileSync(path.join(RAW_DIR, `${el.id}.jpg`), raw.buf)
+      const meta = await sharp(raw.buf).metadata()
+      // where the cut-out's picture sits in the raw picture (0..1, y down): the fake AI draws its scissors there
+      if (r.sheetBox && !el.rot) rawFit = [+((r.sheetBox.x - raw.rect.x) / raw.rect.w).toFixed(4), +((r.sheetBox.y - raw.rect.y) / raw.rect.h).toFixed(4), +(r.sheetBox.w / raw.rect.w).toFixed(4), +(r.sheetBox.h / raw.rect.h).toFixed(4)]
+      entryRaw = { w: meta.width, h: meta.height }
+    }
+    const entryRawInfo = entryRaw
     const entry = { id: el.id, label: el.label, kind: el.kind, face: el.face ?? 'F', w: r.w, h: r.h, anchor: +r.anchor.toFixed(3), colors: r.colors, outline: r.outline.flatMap(([u, v]) => [+u.toFixed(3), +v.toFixed(3)]) }
+    if (rawFit) entry.rawFit = rawFit
+    if (entryRawInfo) entry.rawSize = [entryRawInfo.w, entryRawInfo.h]
     for (const [k, v] of Object.entries(el)) if (!(k in entry) && !PROCESSING.has(k)) entry[k] = v
     library.push(entry)
     previews.push({ id: el.id, buf: r.rgba, w: r.w, h: r.h })

@@ -33,4 +33,12 @@ export interface PaperSave {
   moved: Record<string, PaperPlacement>
 }
 
+// A picture the kid has chosen for the Paper Globe, waiting for the AI to look at it
+export interface PaperPending {
+  src: string // what to show on the AI screen: a demo-shelf picture's address, or the kid's own picture as a small JPEG data URL
+  name?: string // the file name, if any
+  entryId?: string // when it was picked from the demo shelf
+  picture?: string // the kid's own picture, kept with the element so tapping it shows their drawing
+}
+
 export const emptyPaperSave = (): PaperSave => ({ added: [], moved: {} })

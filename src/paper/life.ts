@@ -54,12 +54,15 @@ const hashSeed = (s: number) => Math.floor(s * 1e6) + 17
 // ---------------------------------------------------------------- walkers: people, animals, boats and swans
 // walker2: front view, rocks and hops. walker4: profile, a gentler lope. float: glides on the water.
 export class GroundLife implements Life {
+  readonly handlesDrag = true
   readonly walker: Walker
   private look = 0
   private flipLeft = 0
   private nextFlip: number
   private seed: number
   private rand: () => number
+  // until this time (the scene clock) it ignores the kid and just goes about its business: something just added gets to walk around first
+  busyUntil = 0
 
   constructor(it: PaperItem, home: Vector3, range: number, private mode: 'walker2' | 'walker4' | 'float') {
     const e = it.entry
@@ -73,9 +76,20 @@ export class GroundLife implements Life {
     this.nextFlip = 3 + this.rand() * 8
   }
 
+  rehome(it: PaperItem, dir: Vector3) {
+    // its own copy of the home spot: the others of its group share theirs
+    this.walker.cfg = { ...this.walker.cfg, home: dir.clone() }
+    this.walker.dir.copy(dir)
+    this.walker.hasTarget = false
+    this.walker.idle = 0.5
+    it.dir.copy(dir)
+  }
+
   update(it: PaperItem, dt: number, time: number) {
     const w = this.walker
     const e = it.entry
+    // a put-down creature settles to the ground (and its landing squash fades) before it walks on
+    if (!it.dragging) { if (it.lift > 0.001) it.lift = damp(it.lift, 0, 12, dt); if (it.squash > 0.001) it.squash = damp(it.squash, 0, 9, dt) }
     const held = it.dragging || it.lift > 0.05
     if (held) { w.dir.copy(it.dir); w.speed = 0 }
 
@@ -88,7 +102,7 @@ export class GroundLife implements Life {
 
     // the kid comes close: stop, turn to show the picture, and bounce a little
     const kidD = angleBetween(w.dir, player.dir) * R
-    const kidNear = this.mode !== 'float' && !held && kidD < 4.4 && e.kind !== 'car' && useStore.getState().cam === 'walk'
+    const kidNear = this.mode !== 'float' && !held && time > this.busyUntil && kidD < 4.4 && e.kind !== 'car' && useStore.getState().cam === 'walk'
     this.look = damp(this.look, kidNear ? 1 : 0, 6, dt)
 
     if (!held) {
@@ -187,7 +201,8 @@ export class BirdLife implements Life {
   private flipT = 0
   private perchFwd = new Vector3()
 
-  constructor(it: PaperItem, private home: Vector3) {
+  // `startFrom`: a bird that has just been set down on the ground takes off from there
+  constructor(it: PaperItem, private home: Vector3, startFrom?: Vector3) {
     this.rand = rng(hashSeed(it.seed) + 3)
     this.frame = frameAt(home)
     this.rho = 0.2 + this.rand() * 0.28
@@ -198,6 +213,20 @@ export class BirdLife implements Life {
     this.nextPerch = 10 + this.rand() * 14
     this.loop(this.t, this.pos)
     this.heading(this.t, this.pos, this.fwd)
+    if (startFrom) {
+      this.mode = 'leave'; this.modeT = 0; this.modeDur = 2.8
+      this.from.copy(startFrom).multiplyScalar(surfaceRadius(startFrom) + 0.4)
+      this.t += this.modeDur
+    }
+  }
+
+  rehome(it: PaperItem, dir: Vector3) {
+    this.home = dir.clone()
+    this.frame = frameAt(this.home)
+    this.mode = 'leave'; this.modeT = 0; this.modeDur = 2.6
+    this.from.copy(this.pos)
+    this.t += this.modeDur
+    it.dir.copy(dir)
   }
 
   private loop(t: number, out: Vector3) {
@@ -316,6 +345,14 @@ export class InsectLife implements Life {
     this.timer = this.rand() * 2
   }
 
+  rehome(it: PaperItem, dir: Vector3) {
+    this.home.copy(dir)
+    this.frame = frameAt(this.home)
+    this.pos.copy(dir).multiplyScalar(surfaceRadius(dir) + 0.7)
+    it.dir.copy(dir)
+    this.pick()
+  }
+
   private pick() {
     // the next flower: a random one near home, else a random spot
     const near = lifeWorld.flowers.filter((f) => angleBetween(f.dir, this.home) < this.radius)
@@ -375,6 +412,9 @@ export class InsectLife implements Life {
 // ---------------------------------------------------------------- fish
 export interface PondInfo { center: Vector3; radius: number }
 
+// the three bodies of water (filled in by the population)
+export const PONDS_LIST: PondInfo[] = []
+
 // Swims back and forth along a lane inside its pond, bending along its body, flipping at both ends, dipping in and out of the water.
 // Dolphins leap now and then.
 export class FishLife implements Life {
@@ -392,7 +432,7 @@ export class FishLife implements Life {
   private rand: () => number
   private billboard: boolean
 
-  constructor(it: PaperItem, pond: PondInfo, lane: number) {
+  constructor(it: PaperItem, private pond: PondInfo, private lane: number) {
     this.rand = rng(hashSeed(it.seed) + 11)
     this.phi = this.rand() * 6.28
     this.billboard = it.entry.kind === 'jellyfish'
@@ -404,6 +444,20 @@ export class FishLife implements Life {
   }
 
   // two ends inside the pond with water the whole way between them
+  rehome(it: PaperItem, dir: Vector3) {
+    // swim in whichever pond it was put in
+    let best = this.pond, bd = Infinity
+    for (const p of [this.pond, ...PONDS_LIST]) { const d = angleBetween(p.center, dir); if (d < bd) { bd = d; best = p } }
+    this.pond = best
+    this.chooseLane(best, this.lane)
+    // start the new lane at the closest point to where it was put down
+    let bu = 0.5, bdist = Infinity
+    for (let k = 0; k <= 10; k++) { slerpDir(this.a, this.b, k / 10, _u); const d = angleBetween(_u, dir); if (d < bdist) { bdist = d; bu = k / 10 } }
+    this.u = bu
+    this.turn = -1
+    this.place(it)
+  }
+
   private chooseLane(pond: PondInfo, lane: number) {
     const deep = (d: Vector3) => WATER_R - surfaceRadius(d) > 0.4
     for (let tries = 0; tries < 80; tries++) {

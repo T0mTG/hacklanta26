@@ -85,11 +85,12 @@ export default function Landing() {
         {returning ? (
           <div className="flex flex-col items-center gap-3">
             <Btn big tone="yellow" icon="globe" onClick={enter}>Back to my planet</Btn>
-            {globe === 'toy' && <Btn icon="plus" onClick={() => setOverlay('upload')}>Add a drawing</Btn>}
+            <Btn icon="plus" onClick={() => setOverlay('upload')}>Add a drawing</Btn>
           </div>
         ) : (
           <>
-            <Btn big tone="yellow" icon="pencil" onClick={() => (globe === 'toy' ? setOverlay('upload') : enter())}>Let's go!</Btn>
+            <Btn big tone="yellow" icon="pencil" onClick={() => setOverlay('upload')}>Let's go!</Btn>
+            {globe === 'paper' && <Btn icon="globe" onClick={enter}>Just look around</Btn>}
             <p className="pill !text-sm !border-2 !shadow-none">Your drawings stay on this device</p>
           </>
         )}

@@ -50,11 +50,11 @@ const MIXED_BLOSSOMS = [...BLOSSOM_PINK, ...BLOSSOM_WARM, ...BLOSSOM_COOL]
 
 const LAYERS: Layer[] = [
   // ---------------------------------------------------------------- Gallery Green: open lawn for the kid's own things
+  { region: 'plaza', ids: ['rainbow-a'], n: 1, at: [0.44, 0.04], spread: 0.12, scale: [0.9, 1] },
+  { region: 'plaza', ids: ['rainbow-c'], n: 1, at: [-0.44, -0.06], spread: 0.12, scale: [0.8, 0.9] },
   { region: 'plaza', ids: [...BLOSSOM_PINK, ...BLOSSOM_COOL, 'yellow-bud', 'flower-pink-stem', 'flower-teal'], n: 34, spread: 0.5, inner: 0.1, gap: 0.5 },
   { region: 'plaza', ids: GRASS, n: 16, spread: 0.5, inner: 0.1 },
   { region: 'plaza', ids: ROUND_TREES, n: 7, spread: 0.66, inner: 0.4, scale: [0.85, 1.1], hard: true },
-  { region: 'plaza', ids: ['rainbow-a'], n: 1, at: [0.42, 0.04], spread: 0.03, scale: [0.9, 1] },
-  { region: 'plaza', ids: ['rainbow-c'], n: 1, at: [-0.42, -0.06], spread: 0.03, scale: [0.8, 0.9] },
 
   // ---------------------------------------------------------------- Lily Pond
   { region: 'lily', ids: ['lilypad'], n: 9, spread: 0.3, ground: 'water', gap: 0.2 },
@@ -72,7 +72,7 @@ const LAYERS: Layer[] = [
   // ---------------------------------------------------------------- Sunflower Farm
   { region: 'farm', ids: ['house-orange'], n: 1, at: [-0.05, -0.04], spread: 0.03, face: true, hard: true, scale: [1.05, 1.1] },
   { region: 'farm', ids: ['house-green'], n: 1, at: [0.2, -0.22], spread: 0.04, face: true, hard: true },
-  { region: 'farm', ids: ['doghouse'], n: 1, at: [0.02, -0.13], spread: 0.03, face: true, hard: true },
+  { region: 'farm', ids: ['doghouse'], n: 1, at: [0.1, -0.08], spread: 0.2, inner: 0.08, face: true, hard: true },
   { region: 'farm', ids: ['sunflower'], n: 16, at: [0.12, 0.2], spread: 0.2, gap: 0.3 },
   { region: 'farm', ids: ['apple-red', 'lemon'], n: 3, at: [-0.05, -0.12], spread: 0.08 },
   { region: 'farm', ids: [...MIXED_BLOSSOMS, ...GRASS], n: 22, spread: 0.5 },
@@ -95,13 +95,14 @@ const LAYERS: Layer[] = [
   { region: 'village', ids: ['cottage'], n: 1, at: [-0.17, 0.09], spread: 0.03, face: true, hard: true },
   { region: 'village', ids: ['house-orange'], n: 1, at: [0.16, 0.12], spread: 0.03, face: true, hard: true, scale: [0.95, 1] },
   { region: 'village', ids: ['house-green'], n: 1, at: [0, -0.19], spread: 0.03, face: true, hard: true },
-  { region: 'village', ids: ['doghouse'], n: 2, at: [0, 0.02], spread: 0.1, face: true, hard: true },
+  { region: 'village', ids: ['doghouse'], n: 1, at: [0, 0], spread: 0.36, inner: 0.24, face: true, hard: true },
   { region: 'village', ids: [...STEMS, ...MIXED_BLOSSOMS], n: 24, spread: 0.45, inner: 0.06 },
   { region: 'village', ids: ['apple-red', 'lemon', 'watermelon'], n: 3, spread: 0.15 },
   { region: 'village', ids: ['sapling', 'tree-round', 'tree-apple'], n: 4, spread: 0.55, inner: 0.3, hard: true },
   { region: 'village', ids: ['bush-scribble'], n: 3, spread: 0.4, inner: 0.1 },
 
   // ---------------------------------------------------------------- Duck Pond
+  { region: 'duck', ids: ['rainbow-b'], n: 1, at: [0.0, 0.3], spread: 0.3, scale: [0.85, 0.95] },
   { region: 'duck', ids: ['lilypad'], n: 6, spread: 0.28, ground: 'water', gap: 0.2 },
   { region: 'duck', ids: ['reeds'], n: 7, spread: 0.5, ground: 'shore', gap: 0.3 },
   { region: 'duck', ids: [...STEMS, 'blossom-coral', 'blob-coral'], n: 12, spread: 0.5, ground: 'shore' },
@@ -109,9 +110,9 @@ const LAYERS: Layer[] = [
   { region: 'duck', ids: SHROOMS, n: 3, spread: 0.55, inner: 0.35 },
 
   // ---------------------------------------------------------------- Mount Giggle: rocks on the slopes, pines at the foot, a rainbow on top
+  { region: 'giggle', ids: ['rainbow-d'], n: 1, spread: 0.0, slope: 8, minAbove: 3, scale: [0.9, 0.9] },
   { region: 'giggle', ids: PINES, n: 12, spread: 0.52, inner: 0.22, clumps: 2, clumpSpread: 0.14, hard: true, slope: 0.62 },
   { region: 'giggle', ids: ROCKS, n: 14, spread: 0.5, hard: true, slope: 1.6, gap: 0.2 },
-  { region: 'giggle', ids: ['rainbow-d'], n: 1, spread: 0.0, slope: 8, minAbove: 3, scale: [0.9, 0.9] },
   { region: 'giggle', ids: [...MIXED_BLOSSOMS, ...GRASS], n: 14, spread: 0.55, inner: 0.3 },
 
   // ---------------------------------------------------------------- Twin Hills
@@ -127,14 +128,15 @@ const LAYERS: Layer[] = [
   { region: 'lake', ids: ROCKS, n: 4, spread: 0.7, ground: 'shore', hard: true },
   { region: 'lake', ids: [...STEMS, ...BLOSSOM_COOL], n: 14, spread: 0.7, ground: 'shore' },
   { region: 'lake', ids: ['lilypad'], n: 10, spread: 0.45, ground: 'water', gap: 0.25 },
+  { region: 'lake', ids: ['starfish'], n: 6, spread: 0.7, ground: 'shore', gap: 0.3 },
 
   // ---------------------------------------------------------------- Sunflower Meadow
+  { region: 'meadow', ids: ['rainbow-e'], n: 1, at: [0.3, 0.12], spread: 0.1 },
+  { region: 'meadow', ids: ['rainbow-f'], n: 1, at: [-0.32, -0.1], spread: 0.1, scale: [0.8, 0.8] },
   { region: 'meadow', ids: ['sunflower'], n: 26, spread: 0.42, gap: 0.2 },
   { region: 'meadow', ids: MIXED_BLOSSOMS, n: 38, spread: 0.5, gap: 0.15 },
   { region: 'meadow', ids: STEMS, n: 18, spread: 0.5 },
   { region: 'meadow', ids: GRASS, n: 14, spread: 0.5 },
-  { region: 'meadow', ids: ['rainbow-e'], n: 1, at: [0.3, 0.12], spread: 0.03 },
-  { region: 'meadow', ids: ['rainbow-f'], n: 1, at: [-0.32, -0.1], spread: 0.03, scale: [0.8, 0.8] },
 
   // ---------------------------------------------------------------- a sprinkling everywhere else, so no lawn is bare
   { region: 'all', ids: [...MIXED_BLOSSOMS, ...GRASS, 'yellow-bud'], n: 150, spread: 3.2, gap: 0.5 },
