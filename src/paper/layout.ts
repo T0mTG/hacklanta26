@@ -71,7 +71,7 @@ const LAYERS: Layer[] = [
 
   // ---------------------------------------------------------------- Sunflower Farm
   { region: 'farm', ids: ['house-orange'], n: 1, at: [-0.05, -0.04], spread: 0.03, face: true, hard: true, scale: [1.05, 1.1] },
-  { region: 'farm', ids: ['house-green'], n: 1, at: [0.2, -0.2], spread: 0.04, face: true, hard: true },
+  { region: 'farm', ids: ['house-green'], n: 1, at: [0.2, -0.22], spread: 0.04, face: true, hard: true },
   { region: 'farm', ids: ['doghouse'], n: 1, at: [0.02, -0.13], spread: 0.03, face: true, hard: true },
   { region: 'farm', ids: ['sunflower'], n: 16, at: [0.12, 0.2], spread: 0.2, gap: 0.3 },
   { region: 'farm', ids: ['apple-red', 'lemon'], n: 3, at: [-0.05, -0.12], spread: 0.08 },

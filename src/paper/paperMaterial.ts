@@ -40,7 +40,7 @@ export interface PaperUniforms {
   uTime: IUniform<number>
   uCard: IUniform<Vector4> // width, height, which end is the head (+1 right, -1 left)
   uMotion: IUniform<Vector4>
-  uBack: IUniform<Vector4> // the plain back's color, and 1 when this card has a plain back
+  uBack: IUniform<Vector4> // the plain back's paper color, and how much of it covers the drawing from behind (0 = the card has no plain back)
   uHue: IUniform<number> // 1: a hue shift only touches green (trees blossom pink, their trunks stay brown), 0: it touches every color
 }
 
@@ -49,12 +49,12 @@ const BACKS: Record<string, string> = { default: '#f1e8d3' }
 export function uniformsFor(e: PaperEntry): PaperUniforms {
   const { w, h } = cardDims(e)
   const mode = modeOf(e)
-  const back = new Color(e.colors[0] ?? BACKS.default).lerp(new Color('#fff7e6'), 0.55)
+  const back = new Color(BACKS.default).lerp(new Color(e.colors[0] ?? BACKS.default), 0.12)
   return {
     uTime: paperClock,
     uCard: { value: new Vector4(w, h, e.face === 'L' ? -1 : 1, 0) },
     uMotion: { value: motionOf(e, mode) },
-    uBack: { value: new Vector4(back.r, back.g, back.b, e.back === 'plain' ? 1 : 0) },
+    uBack: { value: new Vector4(back.r, back.g, back.b, e.back === 'plain' ? e.backMix ?? 0.64 : 0) },
     uHue: { value: e.kind === 'tree' || e.kind === 'pine' || e.kind === 'palm' || e.kind === 'bush' || e.kind === 'fern' ? 1 : 0 },
   }
 }
@@ -143,8 +143,8 @@ const MAP_FRAG = /* glsl */ `
     sampledDiffuseColor = vec4(1.0);
   } else {
     sampledDiffuseColor.rgb = hueShift(sampledDiffuseColor.rgb, vHue);
-    // the back of a person is plain colored paper, so walking away from you does not make a face look back
-    if (!gl_FrontFacing && uBack.w > 0.5) sampledDiffuseColor.rgb = uBack.rgb;
+    // the back of a person is the plain side of the paper, with the ink only faintly showing through
+    if (!gl_FrontFacing && uBack.w > 0.0) sampledDiffuseColor.rgb = mix(sampledDiffuseColor.rgb, uBack.rgb, uBack.w);
   }
   diffuseColor *= sampledDiffuseColor;
 #endif
@@ -159,7 +159,7 @@ const DEPTH_MAP_FRAG = /* glsl */ `
 `
 
 function patchMain(shader: WebGLProgramParametersWithUniforms, u: PaperUniforms) {
-  patchDither(shader)
+  patchDither(shader, 2.2)
   Object.assign(shader.uniforms, u)
   shader.vertexShader = shader.vertexShader
     .replace('#include <common>', `#include <common>\n${DECL}\n${DEFORM}`)
@@ -181,7 +181,7 @@ function patchDepth(shader: WebGLProgramParametersWithUniforms, u: PaperUniforms
 }
 
 // A little darker than the picture, so the sunny side of white paper does not blow out
-const PAPER_TONE = 0.86
+const PAPER_TONE = 0.92
 
 export function paperMaterial(e: PaperEntry, map: Texture, u: PaperUniforms) {
   const mode = modeOf(e)

@@ -365,7 +365,9 @@
     459,
     532
    ],
-   "shelf": true
+   "shelf": true,
+   "eave": 0.64,
+   "roof": "#c4651f"
   },
   {
    "id": "house-green",
@@ -385,7 +387,9 @@
      140,
      150
     ]
-   ]
+   ],
+   "eave": 0.58,
+   "roof": "#74a64a"
   },
   {
    "id": "kid-boy",
@@ -399,7 +403,8 @@
     610
    ],
    "shelf": true,
-   "max": 460
+   "max": 460,
+   "backMix": 0.3
   },
   {
    "id": "kid-girl-blue",
@@ -1234,6 +1239,8 @@
    ],
    "mode": "dark",
    "thr": 55,
+   "eave": 0.5,
+   "roof": "#5a3a26",
    "poly": [
     [
      364,
@@ -1436,6 +1443,8 @@
     352
    ],
    "mode": "poly",
+   "eave": 0.52,
+   "roof": "#bf4529",
    "poly": [
     [
      113,

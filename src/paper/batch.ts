@@ -129,6 +129,11 @@ export class CardBatch {
     this.animAttr.needsUpdate = true
   }
 
+  setAmp(i: number, amp: number) {
+    this.anim[i * 4 + 1] = amp
+    this.animAttr.needsUpdate = true
+  }
+
   // the moment (shader seconds) this copy popped up; it grows from nothing with a little overshoot
   setBirth(i: number, t: number) {
     this.birth[i] = t

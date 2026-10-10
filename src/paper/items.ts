@@ -1,4 +1,4 @@
-import { Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 import type { CardBatch } from './batch'
 import type { PaperEntry } from './types'
 
@@ -6,6 +6,9 @@ import type { PaperEntry } from './types'
 export interface Life {
   update(item: PaperItem, dt: number, time: number): void
 }
+
+// A pose written by a Life: where the card is, how it is turned and how big it is (squash included)
+export interface PaperPose { pos: Vector3; quat: Quaternion; scale: Vector3 }
 
 // One cut-out standing (or walking, flying, swimming) on the planet. Plain mutable data: the scene reads it every frame.
 export interface PaperItem {
@@ -24,6 +27,7 @@ export interface PaperItem {
   label?: string // what the AI called it
   picture?: string // the kid's own picture, when they uploaded one
   life: Life | null
+  pose: PaperPose | null // when a Life drives the item, this is where it is; statics are placed from dir, yaw and scale
   // runtime
   batch: CardBatch | null
   slot: number
@@ -38,7 +42,7 @@ export interface PaperItem {
 export function newItem(uid: string, entry: PaperEntry, dir: Vector3, o: Partial<PaperItem> = {}): PaperItem {
   return {
     uid, entry, dir: dir.clone().normalize(), yaw: 0, scale: 1, hue: 0, tint: 1, seed: 0.5, curl: 0, lift: 0, squash: 0,
-    source: 'world', life: null, batch: null, slot: -1, near: false, hover: false, dragging: false,
+    source: 'world', life: null, pose: null, batch: null, slot: -1, near: false, hover: false, dragging: false,
     top: new Vector3(), landedAt: 0, hidden: false, ...o,
   }
 }

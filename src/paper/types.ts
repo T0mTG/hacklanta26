@@ -42,6 +42,8 @@ export interface CutoutSpec {
   shelf?: boolean // has a raw picture on the demo shelf
   // per-element overrides of the kind's defaults
   size?: number; shape?: Shape; behavior?: Behavior; back?: 'mirror' | 'plain'; cards?: 2 | 3
+  backMix?: number // how much of the plain paper shows through on a plain back (0.64 if not said)
+  eave?: number; roof?: string // buildings: where the walls end (fraction of height) and the color of the folded paper roof
 }
 
 // A cut-out with everything resolved: { id, label, kind, shape, behavior, size } plus its files

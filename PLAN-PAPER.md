@@ -87,7 +87,7 @@ scripts/                  one-off asset tooling (its own package.json, sharp)
 | **0** Plan and skeleton | this file, the world-variant switch, the landing choice, paper palette | the Paper Globe shows terrain and clouds; the Toy Globe behaves as before |
 | **1** Assets | cut-out script, `public/paper/*.webp`, library, debug sheet | every cut-out checked by eye; no halos; each has `{ id, label, kind, shape, behavior, size }` |
 | **2** Paper statics | crossed-card plants, 4-card buildings, outline + paper edge + shadows + sway; the world filled by region | free space measured (`__paperCapacity()`); 700 cut-outs in 155 draw calls |
-| **3** Paper life | walker2, walker4, bird, insect, fish, floater with paper motion; the world populated | nothing gets stuck over a long simulated run |
+| **3** Paper life | walker2, walker4, bird, insect, fish, floater with paper motion; the world populated; the paper kid | `__paperHealth()` over many simulated minutes: nobody stuck, nobody in the wrong place |
 | **4** The demo | upload + demo shelf, fake AI reveal, spawn, drag, tap to view, save and restore, HUD, `?lite` | a kid can add a drawing and watch it come alive; verified (tsc, build, frames, fresh clone) |
 
 ## 6. Decisions
@@ -131,3 +131,14 @@ scripts/                  one-off asset tooling (its own package.json, sharp)
 - 742 static cut-outs (127 per region on average, the plaza and the ponds lighter, the woods and the meadow denser), in 155 draw calls and about 540k triangles per frame including the shadow pass (`?lite`: 427 cut-outs, 85 draw calls, 184k triangles). The CPU side of a frame is about 2 ms.
 - Free ground after the layout: 38 percent of the planet is open, and `__paperCapacity()` finds room for about 476 more things at 1.2 units apart (the Toy Globe had room for 73 easels at 3.2 units apart).
 - Hat tip to the reference: the crossed cards look like `ref-tree.png` from every side, the shadows follow the cut-out, and the card edges catch the light as thin cream lines.
+
+## 10. Phase 3 results
+
+- **148 creatures** from one table (`src/paper/population.ts`): 95 walkers (people, farm animals, wild animals, pets, two cars), 11 birds, 22 insects, 23 fish and sea creatures, 9 floaters (swans, ducks, a sailboat, a ship). What each does comes from its kind, not from the table.
+- **Walkers** use the Toy Globe's `Walker` for steering and collisions, plus paper motion in `life.ts`: people rock side to side and hop in six poses to a stride (stop-motion, the pose changes in steps, the sliding does not), animals lope with a nod and a small hop, a turn is a rotation about the up axis (the card passes edge-on), an idle animal flips to face the other way now and then, and when the kid is within a few steps everyone stops, turns to show their picture and bounces. A walker boxed in for 3.5 seconds steps out to the nearest free spot.
+- **Birds** fly lazy loops (a Lissajous ellipse around a home), bank into the turn, fold their card down the middle to flap, and land in a tree (`perch` kinds) to look around, flipping now and then, before taking off.
+- **Insects** fly flower to flower, hover and flutter, and always turn their wings toward the camera, so the fold is the thing you see.
+- **Fish** swim a straight lane inside their pond with water the whole way (checked at six points), bend along the body (vertex shader), flip at both ends and dip in and out of the translucent water; dolphins leap; jellyfish bob and face the camera. Fish are hue-shifted so one drawing becomes blue, pink, green and orange fish.
+- **The kid** is a paper cut-out (the boy), moved by the same `usePlayer` hook as the Toy Globe's kid (extracted from `Kid.tsx` without changing it); from behind you see the plain side of the paper with the ink faintly showing through.
+- **Health check** (`__paperHealth(120)` in the dev console, which runs the world with everything awake): over 240 simulated seconds all 95 walkers kept moving (31 units each on average), none ended in water or inside a tree or house, and nobody stayed stuck for more than 3.5 seconds. It found and fixed two real problems: creatures were placed against the toy globe's obstacles before the paper ones were registered, and a pen of sheep overlapped a house.
+- **Cost**: 3.7 ms of CPU per frame with everything alive and drawn (266 draw calls, about 576k triangles including the shadow pass).

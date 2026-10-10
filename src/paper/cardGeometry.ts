@@ -233,7 +233,7 @@ function buildPlant(e: PaperEntry, withBase = true) {
 }
 
 // A single card standing on a small oval tab (people and animals that walk) or with its middle at the origin (birds, fish, insects)
-function buildCard(e: PaperEntry, mode: 'stand' | 'center') {
+function buildCard(e: PaperEntry, mode: 'stand' | 'center' | 'float') {
   const { w, h } = cardDims(e)
   const poly = toPoints(e.outline)
   const b = new Builder()
@@ -244,6 +244,9 @@ function buildCard(e: PaperEntry, mode: 'stand' | 'center') {
     addCard(b, { e, w, h, anchor: e.anchor, y0: bh * 0.7, angle: 0, thick: thicknessFor(e.size), cols, rows }, poly)
     const rx = Math.min(0.32, Math.max(0.08, w * 0.3))
     addBase(b, 0, 0, rx, rx * 0.5, bh, e.id.length * 11 + 5, 8)
+  } else if (mode === 'float') {
+    // a boat or a swan sits on the water: its foot is at the origin and there is no cardboard under it
+    addCard(b, { e, w, h, anchor: 0.5, y0: 0, angle: 0, thick: thicknessFor(e.size), cols, rows }, poly)
   } else {
     addCard(b, { e, w, h, anchor: 0.5, y0: -h / 2, angle: 0, thick: thicknessFor(e.size), cols, rows }, poly)
   }
@@ -314,7 +317,7 @@ export function buildEntryGeometry(e: PaperEntry): BufferGeometry {
     case 'flat': return buildFlat(e)
     default: {
       const floats = e.behavior === 'bird' || e.behavior === 'insect' || e.behavior === 'fish'
-      return buildCard(e, floats ? 'center' : 'stand')
+      return buildCard(e, floats ? 'center' : e.behavior === 'floater' ? 'float' : 'stand')
     }
   }
 }

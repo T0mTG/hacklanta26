@@ -133,7 +133,8 @@ function World() {
   const variant = VARIANTS[globe]
   return (
     <>
-      <hemisphereLight args={['#eefaf5', '#86b57a', 1.9]} />
+      {/* the paper globe has a paler ground bounce, so white paper stays white instead of going green in the shade */}
+      <hemisphereLight key={globe} args={globe === 'paper' ? ['#fffaf2', '#dfe2cf', 2.1] : ['#eefaf5', '#86b57a', 1.9]} />
       <Sun />
       <Planet style={variant.terrain} />
       {globe === 'paper' ? <PaperContent key="paper" /> : <ToyContent key="toy" />}

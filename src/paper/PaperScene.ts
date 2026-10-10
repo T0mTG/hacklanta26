@@ -1,6 +1,7 @@
 import { Color, Group, Matrix4, Quaternion, Vector3, type Texture } from 'three'
 import { WATER_R } from '../lib/sphere'
 import { frameFor } from '../world/place'
+import { facing } from '../world/rig'
 import { surfaceRadius } from '../world/terrain'
 import { CardBatch } from './batch'
 import { paperItems, type PaperItem } from './items'
@@ -10,6 +11,8 @@ const _q = new Quaternion(), _p = new Vector3(), _s = new Vector3(), _m = new Ma
 // Owns the instanced meshes and keeps them in step with the items. Items come and go (the kid adds and removes things), so slots
 // are handed out and given back; nothing else needs to know which instance belongs to which item.
 export class PaperScene {
+  // the health check turns this on so that creatures on the far side of the planet keep living too
+  static updateAll = false
   readonly group = new Group()
   private batches = new Map<string, CardBatch>()
   private spare = 10
@@ -63,6 +66,13 @@ export class PaperScene {
   writePose(it: PaperItem) {
     const b = it.batch
     if (!b || it.slot < 0) return
+    if (it.pose) {
+      // something that moves by itself says exactly where it is
+      _m.compose(it.pose.pos, it.pose.quat, it.pose.scale)
+      b.setMatrix(it.slot, _m)
+      it.top.copy(it.pose.pos).addScaledVector(it.dir, it.entry.size * it.scale * 0.7)
+      return
+    }
     frameFor(it.dir, it.yaw, _q)
     const radius = it.entry.shape === 'flat' ? WATER_R + 0.03 : surfaceRadius(it.dir)
     _p.copy(it.dir).multiplyScalar(radius + it.lift)
@@ -76,10 +86,17 @@ export class PaperScene {
   update(dt: number, time: number) {
     for (const it of paperItems.values()) {
       if (!it.life) continue
+      // things on the far side of the planet wait for you: no one is looking
+      if (!PaperScene.updateAll && !it.dragging && !facing(it.dir, 0.3)) continue
       it.life.update(it, dt, time)
       this.writePose(it)
     }
     for (const b of this.batches.values()) b.flush()
+  }
+
+  // for things that flap: how much of the shader's fold or bend this copy uses right now (1 = as designed)
+  setAmp(it: PaperItem, amp: number) {
+    if (it.batch && it.slot >= 0) it.batch.setAmp(it.slot, amp)
   }
 
   // the number of copies drawn, for the dev stats
@@ -91,9 +108,14 @@ export class PaperScene {
 
   get batchCount() { return this.batches.size }
 
+  // Remove this scene's meshes and forget the items that were drawn by them. A newer scene may already have taken over some of the
+  // same items (the plan's trees are reused when you switch globes and come back), and those are left alone.
   dispose() {
-    for (const b of this.batches.values()) b.dispose()
+    const mine = new Set<CardBatch>(this.batches.values())
+    for (const [uid, it] of [...paperItems]) {
+      if (it.batch && mine.has(it.batch)) { paperItems.delete(uid); it.batch = null; it.slot = -1 }
+    }
+    for (const b of mine) b.dispose()
     this.batches.clear()
-    for (const uid of [...paperItems.keys()]) paperItems.delete(uid)
   }
 }

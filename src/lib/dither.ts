@@ -12,7 +12,8 @@ float bayer4(vec2 p) {
 }`
 
 // The patch itself, so a material with its own shader changes (the paper cards) can apply it in the same onBeforeCompile
-export function patchDither(shader: WebGLProgramParametersWithUniforms) {
+// `spare`: things this close to the kid (in view-space units) never fade, so the kid's own paper body is not stippled away
+export function patchDither(shader: WebGLProgramParametersWithUniforms, spare = 0) {
   shader.uniforms.uDTarget = ditherU.uDTarget
   shader.uniforms.uDOn = ditherU.uDOn
   shader.vertexShader = shader.vertexShader
@@ -26,7 +27,8 @@ export function patchDither(shader: WebGLProgramParametersWithUniforms) {
         float tt = dot(mvPosition.xyz, tv) / max(dot(tv, tv), 1e-4);
         float dd = length(mvPosition.xyz - tv * tt);
         float rr = 0.55 + 1.25 * tt;
-        vDither = uDOn * step(0.03, tt) * step(tt, 0.96) * (1.0 - smoothstep(rr * 0.5, rr, dd));
+        float near = ${spare > 0 ? `smoothstep(${spare.toFixed(2)}, ${(spare * 1.7).toFixed(2)}, length(mvPosition.xyz - tv))` : '1.0'};
+        vDither = uDOn * near * step(0.03, tt) * step(tt, 0.96) * (1.0 - smoothstep(rr * 0.5, rr, dd));
       }`,
     )
   shader.fragmentShader = shader.fragmentShader
@@ -35,6 +37,6 @@ export function patchDither(shader: WebGLProgramParametersWithUniforms) {
 }
 
 export function withDither<T extends Material>(mat: T): T {
-  mat.onBeforeCompile = patchDither
+  mat.onBeforeCompile = (shader) => patchDither(shader)
   return mat
 }
