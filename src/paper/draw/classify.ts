@@ -27,7 +27,7 @@ export function aiKey(): string {
 }
 export const aiEnabled = () => !!aiKey()
 
-// Fast, cheap models first. A model the key cannot use (404 or 400) moves on to the next one; a bad key stops everything.
+// Fast, cheap models first. A model that is not there, is busy (503) or out of quota (429) moves on to the next one; a bad key stops everything.
 const DEFAULT_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.8-flash']
 const models = () => {
   const own = (import.meta.env.VITE_GEMINI_MODEL as string | undefined)?.trim()
@@ -126,7 +126,7 @@ export async function classifyDrawing(picture: string): Promise<Guess | null> {
     try {
       const res = await ask(model, key, base64, ctl.signal)
       if (res.status === 401 || res.status === 403 || (res.status === 400 && /api key/i.test(await res.clone().text()))) { offForGood = true; warn(`the Gemini key was refused (${res.status})`); return null }
-      if (res.status === 404 || res.status === 400) { warn(`model ${model} is not available to this key (${res.status}), trying the next`); continue }
+      if (res.status === 404 || res.status === 400 || res.status === 429 || res.status >= 500) { warn(`model ${model} did not answer (${res.status}), trying the next`); continue }
       if (!res.ok) { warn(`Gemini answered ${res.status}`); return null }
       const body = await res.json()
       if (body?.promptFeedback?.blockReason) { warn(`Gemini would not look at it (${body.promptFeedback.blockReason})`); return null }

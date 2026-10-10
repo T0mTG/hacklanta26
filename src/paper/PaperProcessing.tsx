@@ -231,7 +231,9 @@ export default function PaperProcessing() {
   // after the reveal it carries on by itself (a tap does it sooner)
   useEffect(() => {
     if (stage !== 'found') return
-    const id = window.setTimeout(finish, (pending?.drawn ? AUTO_MS * 2.5 : AUTO_MS) * slow())
+    // a drawing the AI recognized waits a little longer than a picture from the shelf (there is a "Not right?" to press); one the kid named themself does not
+    const wait = pending?.drawn && found?.how === 'gemini' ? AUTO_MS * 1.6 : AUTO_MS
+    const id = window.setTimeout(finish, wait * slow())
     return () => window.clearTimeout(id)
   }) // eslint-disable-line react-hooks/exhaustive-deps
 
