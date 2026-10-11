@@ -1,6 +1,6 @@
-# Art Gallery - Globe Version
+# Artdobe
 
-**Doodle Planet** is a tiny planet where kids' drawings come to life. There are two planets, and you pick one on the title screen:
+**Artdobe** is a tiny planet where kids' drawings come to life. There are two planets, and you pick one on the title screen:
 
 - **Toy Globe**: a low-poly planet where every drawing gets its own easel. Upload a drawing, drag its easel anywhere on the globe, walk up to it, open the full picture and stick notes on it.
 - **Paper Globe**: the same planet, but everything on it is a real drawing cut out of paper and standing up like a paper-craft diorama. Every tree, flower, house, animal and person is a kid's drawing. Show the planet a drawing (pick one, upload one, or **draw it on a whiteboard** with crayon colors), an "AI" finds the thing in it and cuts it out, and it drops out of the sky next to you and comes alive: the tree plants itself, the cat walks off, the fish dives into the nearest pond.
