@@ -8,6 +8,7 @@ import ArtworkModal from './ui/ArtworkModal'
 import EaselLabels from './ui/EaselLabels'
 import Hud from './ui/Hud'
 import { Drawer, Help } from './ui/Panels'
+import MusicButton from './ui/MusicButton'
 import Scene from './world/Scene'
 import Landing from './screens/Landing'
 import Upload from './screens/Upload'
@@ -30,7 +31,7 @@ function Game() {
       <Scene />
       <div className="ui-layer">
         {screen === 'world' && (globe === 'toy' ? <EaselLabels /> : <PaperLabels />)}
-        {screen === 'landing' && overlay === null && <Landing />}
+        {screen === 'landing' && overlay === null && <><Landing /><div className="absolute right-3 top-3 sm:right-4 sm:top-4 hit"><MusicButton /></div></>}
         {screen === 'world' && overlay === null && <Hud />}
         {screen === 'world' && (
           <>

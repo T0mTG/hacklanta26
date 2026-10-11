@@ -43,12 +43,14 @@ To build and serve the production version: `npm run build && npm run preview`.
 | Walk | W A S D, arrow keys, tap or click the ground, touch stick |
 | Look around, zoom | drag, wheel or pinch |
 | See a drawing | stand next to it and press E, or click or tap it (the Toy Globe: an easel; the Paper Globe: anything) |
+| Talk to a character (Paper Globe) | open its picture, then type in the chat box or press Mic; it answers in its own voice |
 | Move something | press and drag it: an easel on the Toy Globe, any tree, animal, house or person on the Paper Globe |
 | Add a note (Toy Globe) | open a drawing, write, pick a color, "Stick it!" |
 | Add a drawing (Paper Globe) | the plus button, then pick a demo drawing or one of your own |
 | Planet view | G or the globe button |
+| Music | starts on your first click; the note button mutes it (and it quietens while a character speaks) |
 
-Page switches: `?globe=paper` or `?globe=toy` (pick the planet), `?lite` (half the content, no shadows, easier on slow devices), `?screen=world` (skip the intro), `?fresh` (forget what was saved on that planet), `?sheet` (the Paper Globe's cut-out library on one page, with outlines and feet drawn on), `?noai` (never ask the cloud AI what a whiteboard drawing is).
+Page switches: `?globe=paper` or `?globe=toy` (pick the planet), `?lite` (half the content, no shadows, easier on slow devices), `?screen=world` (skip the intro), `?fresh` (forget what was saved on that planet), `?sheet` (the Paper Globe's cut-out library on one page, with outlines and feet drawn on), `?noai` (never ask the cloud AI what a whiteboard drawing is, or to answer in a chat), `?novoice` (characters answer in text only, nothing is spoken).
 
 ## Adding a drawing
 
@@ -66,6 +68,19 @@ Then the planet has to learn *what* it is, so it knows how it behaves (a cat wal
 2. **The kid picks.** With no key, no network, or a refusal, the AI screen asks "What did you draw?" with twelve big pictures (tree, flower, house, person, cat, dog, bird, butterfly, fish, car, mushroom, something else), and for things seen from the side "Which way is it looking?" with two arrows.
 
 What the kid drew is saved with the planet (the cut-out and the picture, about 50 KB each), comes back after a reload, stands a little bigger than the library's pieces, and can be carried, tapped and taken down like everything else.
+
+### Music
+
+A slow, sparse, original piece plays under both planets: soft piano-like notes over a warm pad, four gentle chords, long silences. It is made live with Web Audio in `src/lib/music.ts`, so there is no audio file and nothing to license. It starts on the first click or key press (browsers do not allow sound before that), the note button in the corner mutes it and the choice is remembered. Change the chords or the tempo at the top of that file.
+
+### Talking to the characters
+
+Tap any character on the Paper Globe to open its picture, and a chat box sits under its name. Type (or press **Mic**, talk, then **Stop**) and the character answers as itself: a cat, a tree, a whale, a house, in a sentence or two of simple words.
+
+- **Animals make their noise.** A cat says "Meow!", a duck "Quack quack!", a pig "Oink oink!", a fish "Glub glub!" (`src/paper/talk/sounds.ts`, one line per kind, a few variations each). The animal's real noise is made once by ElevenLabs sound effects (the key needs that permission; it is kept for the session and costs a few credits per kind), then it says a few small words in its voice: Gemini picks them ("Hi friend!"), or a fixed list does when there is no Gemini key. If the sound effect fails, the written noise is spoken instead.
+- **Gemini writes the answer** for everything that is not an animal (a person, a tree, a house, a thing), in one short sentence, (`src/paper/talk/chat.ts`), with the same `VITE_GEMINI_API_KEY` and model fallbacks as the whiteboard. Without a key the character says it cannot talk yet.
+- **ElevenLabs says it out loud** (`src/paper/talk/voice.ts`). Get a key at [ElevenLabs](https://elevenlabs.io/app/settings/api-keys) (it needs the text-to-speech permission), put it in `.env.local` as `VITE_ELEVENLABS_API_KEY=` and restart `npm run dev`. There are four voices: male, female, mom and dad (`src/paper/talk/roles.ts`). A name like "Mom", "Grandpa", "girl" or "king" decides first, then the kind (a lion or a rooster is male; a cat or a butterfly is female), then the character's id, so each one always keeps its voice. A person with nothing to go on is a mom or a dad. `VITE_ELEVENLABS_VOICE_MALE`, `_FEMALE`, `_MOM` and `_DAD` set your own voices; `VITE_ELEVENLABS_VOICE_ID` uses one voice for everybody. Without a key the answers are shown as text.
+- What leaves the device: the chat so far (to Google) and the character's reply (to ElevenLabs). The Mic records your voice and, with an ElevenLabs key (it also needs the speech-to-text permission), sends that recording to ElevenLabs to turn it into words; without one it uses the browser's own speech recognition, which only some browsers have. Press Mic, talk, press Stop. As with the whiteboard, the keys are built into the page, so this is for local demos. `?noai` and `?novoice` switch the two off.
 
 ### The demo-shelf AI is a stand-in
 
@@ -91,6 +106,7 @@ There are no 3D model files. On the Toy Globe, trees, buildings, people and anim
 | `src/entities` | Toy Globe easels, people, animals, the walker, the kid, easel dragging, and the movement hook both kids share |
 | `src/paper` | the Paper Globe: kinds table, cut-out library, card geometry and shader, layout by region, creatures and their paper motion, the fake AI, spawning, dragging, the picture view |
 | `src/paper/draw` | the whiteboard, cutting a drawing out of it, and asking Gemini (or the kid) what it is |
+| `src/paper/talk` | chatting with a character: Gemini for what it says, ElevenLabs for its voice |
 | `src/ui` | HUD, picture view with notes, panels, labels |
 | `src/screens` | landing, upload, processing |
 | `src/lib` | noise, sphere math, the low-poly kit, image processing |

@@ -11,6 +11,7 @@ import { VARIANTS } from '../world/variants'
 import { view } from '../world/rig'
 import Icon from './Icon'
 import { IconBtn } from './kit'
+import MusicButton from './MusicButton'
 
 const goHome = () => {
   const s = useStore.getState()
@@ -189,6 +190,7 @@ export default function Hud() {
         <IconBtn icon="plus" label="Add a drawing" onClick={() => setOverlay('upload')} />
         <IconBtn icon={full ? 'shrink' : 'expand'} label="Full screen" onClick={toggleFull} />
         <IconBtn icon="help" label="How to play" onClick={() => setHelp(true)} />
+        <MusicButton />
       </div>
       <ZoneBanner />
       <Hint touch={touch} />

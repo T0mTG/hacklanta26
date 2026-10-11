@@ -8,3 +8,4 @@ export const DEBUG = q.has('debug')
 export const GLOBE_PARAM = q.get('globe')
 export const SHEET = q.has('sheet') // ?sheet: the library debug sheet instead of the app
 export const NO_AI = q.has('noai') // ?noai: never ask the cloud AI what a drawing is (the kid picks from the pictures instead)
+export const NO_VOICE = q.has('novoice') // ?novoice: characters answer in text only, never ask ElevenLabs to speak

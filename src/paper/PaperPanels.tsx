@@ -10,6 +10,8 @@ import Icon from '../ui/Icon'
 import { Btn, IconBtn } from '../ui/kit'
 import { paperItems } from './items'
 import { removeAdded, standBeforeItem } from './runtime'
+import TalkPanel from './talk/TalkPanel'
+import { kindName } from './draw/classify'
 
 // Tapping something on the Paper Globe: its original drawing, big, with its name.
 export function PaperViewer() {
@@ -65,6 +67,7 @@ export function PaperViewer() {
                   <img src={e.url} alt="" className="h-16 w-auto" draggable={false} style={{ filter: 'drop-shadow(3px 4px 0 rgba(34,51,59,.25))' }} />
                 </div>
               )}
+              <TalkPanel id={it.uid} kind={e.kind} who={{ name: it.label ?? e.label, kind: kindName(e.kind), place: place?.name }} />
               {mine && (
                 sure
                   ? <Btn tone="coral" icon="trash" onClick={() => { removeAdded(it.uid); setViewing(null); say('Bye bye!') }}>Really take it down?</Btn>
