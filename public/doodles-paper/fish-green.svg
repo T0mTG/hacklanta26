@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">
+  <defs>
+    <filter id="w" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="9" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="7"/>
+    </filter>
+    <filter id="c" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="3" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 -2.2 1.17" result="speck"/>
+      <feComposite in="speck" in2="SourceAlpha" operator="in" result="s2"/>
+      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="s2"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="640" height="400" fill="#fffdf5"/>
+  <g filter="url(#w)" stroke="#3a3a3a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <g filter="url(#c)">
+      <path d="M500 200 L610 120 Q590 200 610 280 Z" fill="#8fd694"/>
+      <path d="M230 90 Q290 30 360 96 Q300 110 230 90 Z" fill="#6fc47a"/>
+      <path d="M300 306 Q340 370 390 300 Q340 296 300 306 Z" fill="#6fc47a"/>
+      <path d="M60 200 Q150 80 320 85 Q470 90 520 200 Q470 310 320 315 Q150 320 60 200 Z" fill="#9be3a6"/>
+      <path d="M150 140 Q180 200 150 262 M230 100 Q268 200 230 300" fill="none" stroke="#6fc47a" stroke-width="14"/>
+      <circle cx="125" cy="180" r="20" fill="#fffdf5"/><circle cx="120" cy="181" r="9" fill="#3a3a3a" stroke="none"/>
+      <path d="M72 215 Q92 236 120 226" fill="none"/>
+      <circle cx="330" cy="150" r="14" fill="#6fc47a" stroke-width="4"/><circle cx="380" cy="230" r="14" fill="#6fc47a" stroke-width="4"/><circle cx="305" cy="245" r="10" fill="#6fc47a" stroke-width="4"/><circle cx="420" cy="165" r="10" fill="#6fc47a" stroke-width="4"/>
+    </g>
+  </g>
+</svg>

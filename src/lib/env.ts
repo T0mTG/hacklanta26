@@ -1,6 +1,11 @@
-// URL switches: ?lite (half the content, no shadows), ?fresh (forget the saved planet), ?screen=world (skip the intro)
+// URL switches: ?lite (half the content, no shadows), ?fresh (forget the saved planet), ?screen=world (skip the intro),
+// ?globe=paper|toy (which planet to open; the landing screen can switch it too)
 const q = new URLSearchParams(location.search)
 export const LITE = q.has('lite')
 export const FRESH = q.has('fresh')
 export const START_SCREEN = q.get('screen')
 export const DEBUG = q.has('debug')
+export const GLOBE_PARAM = q.get('globe')
+export const SHEET = q.has('sheet') // ?sheet: the library debug sheet instead of the app
+export const NO_AI = q.has('noai') // ?noai: never ask the cloud AI what a drawing is (the kid picks from the pictures instead)
+export const NO_VOICE = q.has('novoice') // ?novoice: characters answer in text only, never ask ElevenLabs to speak

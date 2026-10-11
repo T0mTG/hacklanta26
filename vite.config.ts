@@ -20,5 +20,5 @@ const keepReferences = (): Plugin => ({
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), keepReferences()],
-  build: { emptyOutDir: false, chunkSizeWarningLimit: 1500 },
+  build: { emptyOutDir: false, chunkSizeWarningLimit: 1800 },
 })

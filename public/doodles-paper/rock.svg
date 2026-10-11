@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="500" viewBox="0 0 600 500">
+  <defs>
+    <filter id="w" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="12" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="7"/>
+    </filter>
+    <filter id="c" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="6" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 -2.2 1.17" result="speck"/>
+      <feComposite in="speck" in2="SourceAlpha" operator="in" result="s2"/>
+      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="s2"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="600" height="500" fill="#fffdf5"/>
+  <g filter="url(#w)" stroke="#3a3a3a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <g filter="url(#c)">
+      <path d="M70 420 Q50 300 130 220 Q190 120 300 112 Q430 100 490 210 Q555 300 530 420 Q300 470 70 420 Z" fill="#b9bec4"/>
+      <path d="M305 135 l-22 52 l28 34 l-20 50 M420 245 l-34 28 l22 30" fill="none" stroke="#8f959c" stroke-width="8"/>
+      <path d="M150 300 l22 -10 M205 345 l26 -8 M450 330 l-26 -6" fill="none" stroke="#a6abb2" stroke-width="8"/>
+      <path d="M95 405 q40 -34 80 -6 q30 20 62 -6" fill="none" stroke="#8cc66d" stroke-width="12"/>
+      <path d="M380 410 q36 -26 72 -2 q22 14 44 -8" fill="none" stroke="#8cc66d" stroke-width="12"/>
+    </g>
+  </g>
+</svg>

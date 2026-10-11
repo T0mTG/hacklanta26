@@ -2,13 +2,16 @@ import { useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEven
 import { AnimatePresence, motion } from 'framer-motion'
 import { Vector3 } from 'three'
 import { easels } from '../entities/registry'
+import { paperItems } from '../paper/items'
 import { player, togglePlanetView } from '../entities/playerState'
 import { R, angleBetween } from '../lib/sphere'
 import { useStore } from '../store'
 import { nearestRegion, type Region } from '../world/regions'
+import { VARIANTS } from '../world/variants'
 import { view } from '../world/rig'
 import Icon from './Icon'
 import { IconBtn } from './kit'
+import MusicButton from './MusicButton'
 
 const goHome = () => {
   const s = useStore.getState()
@@ -56,6 +59,7 @@ function ZoneBanner() {
 // A short reminder of the controls until the kid has walked a few steps
 function Hint({ touch }: { touch: boolean }) {
   const cam = useStore((s) => s.cam)
+  const paper = useStore((s) => s.globe) === 'paper'
   const [gone, setGone] = useState(false)
   useEffect(() => {
     if (gone) return
@@ -67,12 +71,13 @@ function Hint({ touch }: { touch: boolean }) {
   return (
     <div className="absolute left-1/2 -translate-x-1/2 bottom-24 sm:bottom-6 pointer-events-none flex flex-wrap items-center justify-center gap-2 px-3 max-w-full">
       {touch ? (
-        <span className="pill !text-sm">Drag the stick to walk, tap an easel to look</span>
+        <span className="pill !text-sm !whitespace-normal !text-center">{paper ? 'Stick to walk. Tap to look. Hold and drag to carry!' : 'Drag the stick to walk, tap an easel to look'}</span>
       ) : (
         <>
           <span className="pill !text-sm"><span className="keycap">W</span><span className="keycap">A</span><span className="keycap">S</span><span className="keycap">D</span> walk</span>
           <span className="pill !text-sm">drag to look around</span>
-          <span className="pill !text-sm"><span className="keycap">E</span> look at a drawing</span>
+          <span className="pill !text-sm"><span className="keycap">E</span> {paper ? 'see the drawing' : 'look at a drawing'}</span>
+          {paper && <span className="pill !text-sm">drag anything to carry it</span>}
         </>
       )}
     </div>
@@ -81,6 +86,7 @@ function Hint({ touch }: { touch: boolean }) {
 
 // "Look [E]" floating over the easel you are standing next to
 function PromptPill() {
+  const touch = useMemo(() => window.matchMedia?.('(pointer: coarse)').matches ?? false, [])
   const nearId = useStore((s) => s.nearId)
   const cam = useStore((s) => s.cam)
   const blocked = useStore((s) => !!s.viewing || !!s.overlay || s.drawer)
@@ -92,10 +98,12 @@ function PromptPill() {
     const tick = () => {
       raf = requestAnimationFrame(tick)
       const node = el.current, camera = view.camera
-      const rt = nearId ? easels.get(nearId) : null
+      const rt = nearId ? (useStore.getState().globe === 'paper' ? paperItems.get(nearId) : easels.get(nearId)) : null
       if (!node || !camera || !rt) return
       v.copy(rt.top).project(camera)
-      node.style.transform = `translate(${(v.x * 0.5 + 0.5) * window.innerWidth}px, ${(-v.y * 0.5 + 0.5) * window.innerHeight}px) translate(-50%, -100%)`
+      const half = node.offsetWidth / 2 + 8 // keep the pill on the screen when what it points at is near an edge
+      const x = Math.min(window.innerWidth - half, Math.max(half, (v.x * 0.5 + 0.5) * window.innerWidth))
+      node.style.transform = `translate(${x}px, ${(-v.y * 0.5 + 0.5) * window.innerHeight}px) translate(-50%, -100%)`
     }
     tick()
     return () => cancelAnimationFrame(raf)
@@ -103,7 +111,7 @@ function PromptPill() {
   if (!nearId || cam !== 'walk' || blocked) return null
   return (
     <button ref={el} className="pill hit prompt !px-3.5 !py-1.5 cursor-pointer" style={{ position: 'absolute', left: 0, top: 0, transform: 'translate(-9999px,-9999px)' }} onClick={() => setViewing(nearId)}>
-      <Icon name="camera" size={18} /> Look <span className="keycap">E</span>
+      <Icon name="camera" size={18} /> Look {!touch && <span className="keycap">E</span>}
     </button>
   )
 }
@@ -150,7 +158,8 @@ function InteractButton() {
 
 export default function Hud() {
   const cam = useStore((s) => s.cam)
-  const count = useStore((s) => s.artworks.length)
+  const globe = useStore((s) => s.globe)
+  const count = useStore((s) => (s.globe === 'toy' ? s.artworks.length : s.paper.added.length))
   const setOverlay = useStore((s) => s.setOverlay)
   const setDrawer = useStore((s) => s.setDrawer)
   const setHelp = useStore((s) => s.setHelp)
@@ -172,15 +181,16 @@ export default function Hud() {
         className="sticker absolute left-3 top-3 sm:left-4 sm:top-4 px-3.5 py-2 flex items-center gap-2.5 hit cursor-pointer"
         title="Back to the title screen" onClick={goHome}
       >
-        <span className="font-display font-bold text-lg leading-none">Doodle Planet</span>
+        <span className="font-display font-bold text-lg leading-none">{globe === 'toy' ? 'Doodle Planet' : VARIANTS[globe].name}</span>
         <span className="badge-dark" title="Drawings on the planet">{count}</span>
       </button>
       <div className="absolute right-3 top-3 sm:right-4 sm:top-4 flex flex-col gap-3">
         <IconBtn icon="globe" label="Planet view (G)" active={cam === 'globe'} onClick={togglePlanetView} />
-        <IconBtn icon="frame" label="My drawings" onClick={() => setDrawer(true)} />
+        <IconBtn icon="frame" label={globe === 'toy' ? 'My drawings' : 'My stuff'} onClick={() => setDrawer(true)} />
         <IconBtn icon="plus" label="Add a drawing" onClick={() => setOverlay('upload')} />
         <IconBtn icon={full ? 'shrink' : 'expand'} label="Full screen" onClick={toggleFull} />
         <IconBtn icon="help" label="How to play" onClick={() => setHelp(true)} />
+        <MusicButton />
       </div>
       <ZoneBanner />
       <Hint touch={touch} />

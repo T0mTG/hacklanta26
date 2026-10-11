@@ -76,16 +76,31 @@ export function slopeAt(d: Vector3, h0 = heightAt(d.x, d.y, d.z)) {
   return Math.hypot(a, b) / (delta * R)
 }
 
-const C = {
-  dark: new Color(palette.grassDark), mid: new Color(palette.grass), light: new Color(palette.grassLight),
-  sand: new Color(palette.sand), sandWet: new Color(palette.sandWet), dirt: new Color(palette.dirt),
-  rock: new Color(palette.rock), mountain: new Color(palette.mountain), snow: new Color(palette.snow),
-  seabed: new Color('#6cc2ad'), seabedDeep: new Color('#3f9c9c'),
-  wheat: new Color('#e4c25c'), sunflower: new Color('#c8d86c'), lawn: new Color('#b4e07c'),
+// The two globes use the same hills and ponds with different ground colors. The paper palette is paler and calmer, so the
+// saturated cut-outs standing on it are what the eye goes to.
+export type TerrainStyle = 'toy' | 'paper'
+
+type PaletteSpec = Record<'dark' | 'mid' | 'light' | 'sand' | 'sandWet' | 'dirt' | 'rock' | 'mountain' | 'snow' | 'seabed' | 'seabedDeep' | 'wheat' | 'sunflower' | 'lawn', string>
+const makePalette = (c: PaletteSpec) => Object.fromEntries(Object.entries(c).map(([k, v]) => [k, new Color(v)])) as Record<keyof PaletteSpec, Color>
+const TOY_COLORS: PaletteSpec = {
+  dark: palette.grassDark, mid: palette.grass, light: palette.grassLight,
+  sand: palette.sand, sandWet: palette.sandWet, dirt: palette.dirt,
+  rock: palette.rock, mountain: palette.mountain, snow: palette.snow,
+  seabed: '#6cc2ad', seabedDeep: '#3f9c9c',
+  wheat: '#e4c25c', sunflower: '#c8d86c', lawn: '#b4e07c',
 }
+const PAPER_COLORS: PaletteSpec = {
+  dark: '#a3d28f', mid: '#bde3a3', light: '#d7efb6',
+  sand: '#f4e8c4', sandWet: '#e4d6a8', dirt: '#f1e0b6',
+  rock: '#d6cdbd', mountain: '#bfae9d', snow: '#fdfaf3',
+  seabed: '#9ddacc', seabedDeep: '#70bdbe',
+  wheat: '#f1de9f', sunflower: '#dde68f', lawn: '#cdeab1',
+}
+const PALETTES: Record<TerrainStyle, ReturnType<typeof makePalette>> = { toy: makePalette(TOY_COLORS), paper: makePalette(PAPER_COLORS) }
 
 // Biome color for one terrain vertex (written into `out`)
-export function terrainColor(d: Vector3, r: number, slope: number, out: Color) {
+export function terrainColor(d: Vector3, r: number, slope: number, out: Color, style: TerrainStyle = 'toy') {
+  const C = PALETTES[style]
   const { x, y, z } = d
   const n1 = fbm3(x * 3.2 + 5, y * 3.2 + 1, z * 3.2 + 9, 3)
   const n2 = fbm3(x * 10 + 2, y * 10 + 8, z * 10 + 3, 2)
@@ -127,7 +142,7 @@ function unitSphere(detail: number) {
 }
 
 // The planet: displaced icosphere with biome vertex colors and flat facets
-export function buildPlanetGeometry(detail: number) {
+export function buildPlanetGeometry(detail: number, style: TerrainStyle = 'toy') {
   const g = unitSphere(detail)
   const pos = g.getAttribute('position')
   const colors = new Float32Array(pos.count * 3)
@@ -136,7 +151,7 @@ export function buildPlanetGeometry(detail: number) {
     v.fromBufferAttribute(pos, i).normalize()
     const h = heightAt(v.x, v.y, v.z)
     const r = R + h
-    terrainColor(v, r, slopeAt(v, h), c)
+    terrainColor(v, r, slopeAt(v, h), c, style)
     pos.setXYZ(i, v.x * r, v.y * r, v.z * r)
     colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b
   }

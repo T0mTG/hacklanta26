@@ -69,8 +69,18 @@ const HELP: [string, string][] = [
   ['Whole planet', 'Press G or the globe button. Spin it, then tap a drawing.'],
 ]
 
+const HELP_PAPER: [string, string][] = [
+  ['Walk', 'W A S D or the arrow keys. Or tap the ground.'],
+  ['Look around', 'Drag with the mouse or your finger. Scroll or pinch to zoom.'],
+  ['See a drawing', 'Walk up to anything and press E, or just tap it.'],
+  ['Carry things', 'Press and hold anything, then drag it somewhere new.'],
+  ['Add your own', 'Press the plus button and pick a drawing.'],
+  ['Whole planet', 'Press G or the globe button.'],
+]
+
 export function Help() {
   const open = useStore((s) => s.help)
+  const rows = useStore((s) => s.globe) === 'paper' ? HELP_PAPER : HELP
   const setHelp = useStore((s) => s.setHelp)
   useEffect(() => {
     if (!open) return
@@ -92,7 +102,7 @@ export function Help() {
               <IconBtn icon="close" label="Close" onClick={() => setHelp(false)} />
             </div>
             <dl className="mt-3 grid gap-3">
-              {HELP.map(([k, v]) => (
+              {rows.map(([k, v]) => (
                 <div key={k}>
                   <dt className="eyebrow">{k}</dt>
                   <dd className="text-base leading-snug">{v}</dd>

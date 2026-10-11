@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Color, ShaderMaterial } from 'three'
+import { Color, ShaderMaterial, type BufferGeometry } from 'three'
 import { LITE } from '../lib/env'
 import { MAT } from './materials'
-import { buildPlanetGeometry, buildWaterGeometry } from './terrain'
+import { buildPlanetGeometry, buildWaterGeometry, type TerrainStyle } from './terrain'
 
 const VERT = /* glsl */ `
 attribute float aDepth;
@@ -44,18 +44,35 @@ void main() {
   #include <colorspace_fragment>
 }`
 
-export default function Planet() {
-  const { terrain, water, mat } = useMemo(() => {
+const WATER_COLORS: Record<TerrainStyle, { shallow: string; deep: string }> = {
+  toy: { shallow: '#4fc3ba', deep: '#2a9ba3' },
+  paper: { shallow: '#86d7cf', deep: '#4db1b6' }, // paler, so cut-outs dipping into the pond still show through
+}
+
+// The terrain depends on the globe's palette, the water only on its colors. Both are built once per style and kept, so
+// switching globes on the landing screen is instant after the first time.
+const terrainCache = new Map<TerrainStyle, BufferGeometry>()
+let waterGeometry: BufferGeometry | null = null
+
+export default function Planet({ style = 'toy' }: { style?: TerrainStyle }) {
+  const { terrain, water } = useMemo(() => {
     const t0 = performance.now()
-    const terrain = buildPlanetGeometry(LITE ? 34 : 54)
-    const water = buildWaterGeometry(LITE ? 40 : 56)
-    const mat = new ShaderMaterial({
-      uniforms: { uTime: { value: 0 }, uShallow: { value: new Color('#4fc3ba') }, uDeep: { value: new Color('#2a9ba3') }, uFoam: { value: new Color('#f6fbf7') } },
+    let terrain = terrainCache.get(style)
+    if (!terrain) {
+      terrain = buildPlanetGeometry(LITE ? 34 : 54, style)
+      terrainCache.set(style, terrain)
+    }
+    waterGeometry ??= buildWaterGeometry(LITE ? 40 : 56)
+    if (import.meta.env.DEV) console.info(`[planet] ${style} terrain + water ready in`, Math.round(performance.now() - t0), 'ms')
+    return { terrain, water: waterGeometry }
+  }, [style])
+  const mat = useMemo(() => {
+    const c = WATER_COLORS[style]
+    return new ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uShallow: { value: new Color(c.shallow) }, uDeep: { value: new Color(c.deep) }, uFoam: { value: new Color('#f6fbf7') } },
       vertexShader: VERT, fragmentShader: FRAG, transparent: true, depthWrite: false,
     })
-    if (import.meta.env.DEV) console.info('[planet] terrain + water built in', Math.round(performance.now() - t0), 'ms')
-    return { terrain, water, mat }
-  }, [])
+  }, [style])
   useFrame((_, dt) => { mat.uniforms.uTime.value += dt })
   return (
     <>

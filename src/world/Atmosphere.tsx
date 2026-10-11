@@ -31,7 +31,7 @@ function setWingedBody(i: number, body: InstancedMesh, left: InstancedMesh, righ
 }
 
 // Outlined cream clouds drifting around the planet on their own orbits, like in the reference
-function Clouds() {
+export function Clouds() {
   const { root, orbits } = useMemo(() => {
     const rand = rng(77)
     const variants = M.CLOUDS()
