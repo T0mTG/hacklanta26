@@ -4,8 +4,7 @@ import { VARIANTS, type GlobeId } from '../world/variants'
 import { Btn } from '../ui/kit'
 
 const WORDS = [
-  { text: 'Doodle', colors: ['#ee6c4d', '#f2c14e', '#a8e6c3', '#9ad4f5', '#c9b6f2', '#f6a6b8'] },
-  { text: 'Planet', colors: ['#fbf5e6'] },
+  { text: 'ARTDOBE', colors: ['#ee6c4d', '#f2c14e', '#a8e6c3', '#9ad4f5', '#c9b6f2', '#f6a6b8'] },
 ]
 
 // Tiny pictures for the two globe buttons: a low-poly toy planet, and a planet with a paper cut-out tree standing on it
@@ -66,7 +65,7 @@ export default function Landing() {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-between px-4 pt-[5vh] pb-[4vh] text-center overflow-y-auto">
       <div className="flex flex-col items-center">
-        <h1 className="logo" aria-label="Doodle Planet">
+        <h1 className="logo" aria-label="ARTDOBE">
           {WORDS.map((w) => (
             <span key={w.text} className="block" style={{ animation: 'none' }}>
               {[...w.text].map((ch, i) => (

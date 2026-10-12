@@ -181,7 +181,7 @@ export default function Hud() {
         className="sticker absolute left-3 top-3 sm:left-4 sm:top-4 px-3.5 py-2 flex items-center gap-2.5 hit cursor-pointer"
         title="Back to the title screen" onClick={goHome}
       >
-        <span className="font-display font-bold text-lg leading-none">{globe === 'toy' ? 'Doodle Planet' : VARIANTS[globe].name}</span>
+        <span className="font-display font-bold text-lg leading-none">{globe === 'toy' ? 'ARTDOBE' : VARIANTS[globe].name}</span>
         <span className="badge-dark" title="Drawings on the planet">{count}</span>
       </button>
       <div className="absolute right-3 top-3 sm:right-4 sm:top-4 flex flex-col gap-3">
